@@ -12,7 +12,6 @@ const JobSchema = new mongoose.Schema({
   },
   datePost: {
     type: Date,
-    required: true,
     default: Date.now,
   },
   deadline: {

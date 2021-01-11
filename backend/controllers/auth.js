@@ -172,3 +172,38 @@ exports.login = async (req, res) => {
     res.status(500).json({ errors: [{ msg: "Server Error" }] });
   }
 };
+
+exports.protect = async (req, res, next) => {
+  try {
+    const token = req.header("x-auth-token");
+    if (!token) {
+      return res
+        .status(401)
+        .json({ errors: [{ msg: "You are not logged in!" }] });
+    }
+
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const user = await User.findById(decoded.user.id);
+
+    if (!user) {
+      return res.status(401).json({ errors: [{ msg: "Invalid token" }] });
+    }
+    req.user = user;
+
+    next();
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};
+
+exports.restrictTo = (role) => {
+  return (req, res, next) => {
+    if (role !== req.user.role) {
+      return res.status(401).json({
+        errors: [{ msg: "You are not authorized to perform this action" }],
+      });
+    }
+    next();
+  };
+};
