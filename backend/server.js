@@ -19,8 +19,8 @@ app.use(express.json());
 // app.use("/api/topic", require("./routes/api/topic"));
 // app.use("/api/comment", require("./routes/api/comment"));
 // app.use("/api/test", require("./routes/api/test"));
-app.use("/api/users", require("./routes/users"))
-app.use("/api/jobs", require("./routes/jobs"))
+app.use("/api/users", require("./routes/users"));
+app.use("/api/jobs", require("./routes/jobs"));
 
 // app.get("/", (req, res) => {
 //   res.send("Server setup successfully");
