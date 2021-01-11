@@ -29,11 +29,6 @@ function countWords(str) {
   return str.split(" ").length;
 }
 
-// function validateEmail(email) {
-//   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-//   return re.test(String(email).toLowerCase());
-// }
-
 function validateEmail(email) {
   var re = /\S+@\S+\.\S+/;
   return re.test(email);
@@ -44,22 +39,19 @@ exports.signup = async (req, res) => {
     const { name, email, password, role } = req.body;
     if (!name || !email || !password || !role) {
       return res.status(400).json({
-        status: "error",
-        message: "Please enter Details",
+        errors: [{ msg: "Please enter all details" }],
       });
     }
 
     if (!validateEmail(email)) {
       return res.status(400).json({
-        status: "error",
-        message: "Please enter valid email",
+        errors: [{ msg: "Please enter valid email" }],
       });
     }
 
     if (password.length < 6) {
       return res.status(400).json({
-        status: "error",
-        message: "Minimum length of password is 6 characters",
+        errors: [{ msg: "Minimum length of password is 6 characters" }],
       });
     }
 
@@ -83,14 +75,14 @@ exports.signup = async (req, res) => {
             el.startYear > year
           ) {
             return res.status(400).json({
-              status: "error",
-              message: "Please enter correct institute and start date",
+              errors: [
+                { msg: "Please enter correct institute and start date" },
+              ],
             });
           }
           if (el.endYear && el.endYear < el.startYear) {
             return res.status(400).json({
-              status: "error",
-              message: "End date cannot be eariler than start date",
+              errors: [{ msg: "End date cannot be eariler than start date" }],
             });
           }
         }
@@ -106,22 +98,22 @@ exports.signup = async (req, res) => {
       });
     } else if (role === "Recruiter") {
       const { contact, bio } = req.body;
-      if (
-        typeof contact !== "number" ||
-        contact < 111111111 ||
-        contact > 9999999999
-      ) {
-        return res.status(400).json({
-          status: "error",
-          message: "Please enter valid contact number",
-        });
+      if (contact) {
+        if (
+          typeof contact !== "number" ||
+          contact < 111111111 ||
+          contact > 9999999999
+        ) {
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "Please enter valid contact number" }] });
+        }
       }
       if (bio) {
         if (typeof bio !== "string" || countWords(bio) > 250) {
-          return res.status(400).json({
-            status: "error",
-            message: "Max Word Limit of Bio is 250 words",
-          });
+          return res
+            .status(400)
+            .json({ errors: [{ msg: "Max Word Limit of Bio is 250 words" }] });
         }
       }
       user = new Recruiter({
@@ -133,10 +125,9 @@ exports.signup = async (req, res) => {
         bio,
       });
     } else {
-      return res.status(400).json({
-        status: "error",
-        message: "Please enter valid role",
-      });
+      return res
+        .status(400)
+        .json({ errors: [{ msg: "Please enter valid role" }] });
     }
 
     user.password = await bcrypt.hash(password, 12);
@@ -146,9 +137,38 @@ exports.signup = async (req, res) => {
     createSendToken(user, 201, req, res);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({
-      status: "error",
-      message: "Server Error",
-    });
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) {
+      return res
+        .status(401)
+        .json({ errors: [{ msg: "Please enter all details" }] });
+    }
+
+    let user;
+    if (role === "Applicant") {
+      user = await Applicant.findOne({ email });
+    } else if (role === "Recruiter") {
+      user = await Recruiter.findOne({ email });
+    }
+
+    if (!user) {
+      return res.status(401).json({ errors: [{ msg: "Invalid Credentials" }] });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ errors: [{ msg: "Invalid Credentials" }] });
+    }
+
+    createSendToken(user, 200, req, res);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
   }
 };
