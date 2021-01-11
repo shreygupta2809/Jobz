@@ -18,13 +18,6 @@ const JobSchema = new mongoose.Schema({
   deadline: {
     type: Date,
     required: true,
-    // Check (Not Sure if this Works)
-    validate: {
-      validator: function (input) {
-        return Date(input) >= new Date();
-      },
-      message: "Deadline must be in the future",
-    },
   },
   skill: [String],
   type: {
@@ -43,19 +36,11 @@ const JobSchema = new mongoose.Schema({
     type: Number,
     min: [0, "Number of Positions cannot be negative"],
     required: true,
-    validate: {
-      validator: Number.isInteger,
-      message: "{VALUE} not an integer value",
-    },
   },
   maxApp: {
     type: Number,
     min: [0, "Number of Applications cannot be negative"],
     required: true,
-    validate: {
-      validator: Number.isInteger,
-      message: "{VALUE} not an integer value",
-    },
   },
   ratings: [
     {

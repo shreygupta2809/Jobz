@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 const User = require("./user");
 
-const Applicant = User.discriminator(
-  "Applicant",
-  new mongoose.Schema({
+const ApplicantSchema = new mongoose.Schema(
+  {
     ratings: [
       {
         appId: {
@@ -37,21 +36,16 @@ const Applicant = User.discriminator(
         startYear: {
           type: Number,
           required: true,
-          validate: {
-            validator: Number.isInteger,
-            message: "{VALUE} not an integer value",
-          },
         },
         endYear: {
           type: Number,
-          validate: {
-            validator: Number.isInteger,
-            message: "{VALUE} not an integer value",
-          },
         },
       },
     ],
-  })
+  },
+  {
+    discriminatorKey: "role",
+  }
 );
 
-module.exports = mongoose.model(Applicant);
+module.exports = User.discriminator("Applicant", ApplicantSchema);

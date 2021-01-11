@@ -1,16 +1,13 @@
 const mongoose = require("mongoose");
 const User = require("./user");
 
-const Recruiter = User.discriminator(
-  "Recruiter",
-  new mongoose.Schema({
+const RecruiterSchema = new mongoose.Schema(
+  {
     contact: {
       type: Number,
-      required: true,
     },
     bio: {
       type: String,
-      required: true,
     },
     jobs: [
       {
@@ -24,7 +21,10 @@ const Recruiter = User.discriminator(
         ref: "Applicant",
       },
     ],
-  })
+  },
+  {
+    discriminatorKey: "role",
+  }
 );
 
-module.exports = mongoose.model(Recruiter);
+module.exports = User.discriminator("Recruiter", RecruiterSchema);
