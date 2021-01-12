@@ -13,21 +13,44 @@ exports.apply = async (req, res) => {
       return res.status(404).json({ errors: [{ msg: "No Job with that Id" }] });
     }
 
-    const { sop } = req.body;
-    if (!sop) {
+    var today = new Date();
+    if (job.deadline < today) {
       return res.status(400).json({
-        errors: [{ msg: "Please enter the Statement of Purpose" }],
+        errors: [{ msg: "Deadline to apply has passed" }],
       });
-    }
-
-    if (typeof sop !== "string" || countWords(sop) > 250) {
-      return res
-        .status(400)
-        .json({ errors: [{ msg: "Max Word Limit of SOP is 250 words" }] });
     }
 
     const applicantId = req.user.id;
     const jobId = req.params.id;
+
+    const appJobs = await Application.find({
+      job: jobId,
+    });
+
+    let curApp = 0,
+      accApp = 0;
+
+    for (var i = 0; i < appJobs.length; i++) {
+      const el = appJobs[i];
+      if (el.status === "Accepted") accApp++;
+      if (el.status === "Applied" || el.status === "Shortlisted") curApp++;
+    }
+
+    if (curApp >= job.maxApp) {
+      return res.status(400).json({
+        errors: [
+          {
+            msg: "Maximum Number of Application for this job have been reached",
+          },
+        ],
+      });
+    }
+
+    if (accApp >= job.maxPos) {
+      return res.status(400).json({
+        errors: [{ msg: "All positions for this job have been filled" }],
+      });
+    }
 
     const myApps = await Application.find({
       applicant: applicantId,
@@ -46,14 +69,27 @@ exports.apply = async (req, res) => {
       }
     }
     if (isAccepted) {
-      return res
-        .status(400)
-        .json({ errors: [{ msg: "You have already been accepted" }] });
+      return res.status(400).json({
+        errors: [{ msg: "You have already been accepted for a job" }],
+      });
     }
     if (count >= 10) {
       return res
         .status(400)
         .json({ errors: [{ msg: "You cannot apply for any more jobs" }] });
+    }
+
+    const { sop } = req.body;
+    if (!sop) {
+      return res.status(400).json({
+        errors: [{ msg: "Please enter the Statement of Purpose" }],
+      });
+    }
+
+    if (typeof sop !== "string" || countWords(sop) > 250) {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: "Max Word Limit of SOP is 250 words" }] });
     }
 
     var application = new Application({
@@ -95,12 +131,23 @@ exports.changeStatus = async (req, res) => {
     const { status } = req.body;
 
     if (status === "Accepted") {
+      const appJobs = await Application.find({
+        job: application.job,
+        status: { $nin: ["Rejected", "Shortlisted", "Applied"] },
+      });
+      if (appJobs.length >= job.maxPos) {
+        return res.status(400).json({
+          errors: [{ msg: "All positions for this job have been filled" }],
+        });
+      }
+
       if (application.status === "Rejected") {
         return res.status(400).json({
           errors: [{ msg: "You cannot accept a rejected application" }],
         });
       }
       const applicantId = application.applicant;
+      const jobId = application.job;
 
       application.status = status;
       await application.save();
@@ -109,6 +156,13 @@ exports.changeStatus = async (req, res) => {
         { applicant: applicantId, _id: { $ne: req.params.id } },
         { status: "Rejected" }
       );
+
+      if (appJobs.length + 1 == job.maxPos) {
+        await Application.updateMany(
+          { job: jobId, _id: { $ne: req.params.id } },
+          { status: "Rejected" }
+        );
+      }
     } else if (status === "Shortlisted" || status === "Rejected") {
       if (application.status === "Accepted") {
         return res.status(400).json({

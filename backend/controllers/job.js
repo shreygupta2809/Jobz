@@ -54,13 +54,13 @@ exports.createJob = async (req, res) => {
       });
     }
 
-    // var today = new Date();
-
-    // if (deadline <= today) {
-    //   return res.status(400).json({
-    //     errors: [{ msg: "Deadline should be in the future" }],
-    //   });
-    // }
+    var today = new Date();
+    var tempDate = new Date(deadline);
+    if (tempDate <= today) {
+      return res.status(400).json({
+        errors: [{ msg: "Deadline should be in the future" }],
+      });
+    }
 
     const recruiterId = req.user.id;
 
@@ -154,6 +154,18 @@ exports.updateJob = async (req, res) => {
               },
             ],
           });
+        }
+      }
+
+      if (deadline) {
+        var today = new Date();
+        var tempDate = new Date(deadline);
+        if (tempDate <= today) {
+          return res.status(400).json({
+            errors: [{ msg: "Deadline should be in the future" }],
+          });
+        } else {
+          job.deadline = deadline;
         }
       }
 
