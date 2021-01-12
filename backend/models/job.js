@@ -57,12 +57,6 @@ const JobSchema = new mongoose.Schema({
     ref: "Recruiter",
     required: true,
   },
-  applications: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Application",
-    },
-  ],
 });
 
 module.exports = mongoose.model("Job", JobSchema);

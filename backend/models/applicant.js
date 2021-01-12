@@ -15,12 +15,6 @@ const ApplicantSchema = new mongoose.Schema(
       },
     ],
     skill: [String],
-    applications: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Application",
-      },
-    ],
     resume: {
       type: String,
     },

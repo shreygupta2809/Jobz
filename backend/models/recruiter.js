@@ -9,18 +9,6 @@ const RecruiterSchema = new mongoose.Schema(
     bio: {
       type: String,
     },
-    jobs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
-      },
-    ],
-    employee: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Applicant",
-      },
-    ],
   },
   {
     discriminatorKey: "role",
