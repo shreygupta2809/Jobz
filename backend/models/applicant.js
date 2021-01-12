@@ -5,7 +5,7 @@ const ApplicantSchema = new mongoose.Schema(
   {
     ratings: [
       {
-        appId: {
+        recId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Recruiter",
         },

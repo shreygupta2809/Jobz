@@ -39,6 +39,11 @@ exports.apply = async (req, res) => {
       const el = myApps[i];
       if (el.status === "Accepted") isAccepted = 1;
       if (el.status === "Applied" || el.status === "Shortlisted") count++;
+      if (el.job.toString() === req.params.id) {
+        return res
+          .status(400)
+          .json({ errors: [{ msg: "You have already applied for this job" }] });
+      }
     }
     if (isAccepted) {
       return res
