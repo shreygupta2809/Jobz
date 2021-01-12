@@ -1,5 +1,6 @@
 const Job = require("../models/job");
 const Recruiter = require("../models/recruiter");
+const Application = require("../models/application");
 
 exports.createJob = async (req, res) => {
   try {
@@ -99,6 +100,8 @@ exports.deleteJob = async (req, res) => {
 
     if (job.recruiter.toString() === req.user.id) {
       await job.delete();
+
+      await Application.deleteMany({ job: req.params.id });
 
       res.status(204).json({
         status: "Success",

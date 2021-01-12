@@ -23,10 +23,7 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 function countWords(str) {
-  str = str.replace(/(^\s*)|(\s*$)/gi, "");
-  str = str.replace(/[ ]{2,}/gi, " ");
-  str = str.replace(/\n /, "\n");
-  return str.split(" ").length;
+  return str.replace(/\s+/g, " ").trim().split(" ").length;
 }
 
 function validateEmail(email) {
