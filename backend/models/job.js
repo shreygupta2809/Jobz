@@ -21,8 +21,8 @@ const JobSchema = new mongoose.Schema({
   skill: [String],
   type: {
     type: String,
-    enum: ["Full Time", "Part Time", "Work From Home"],
-    default: "Full Time",
+    enum: ["Full-Time", "Part-Time", "Work-From-Home"],
+    default: "Full-Time",
     required: true,
   },
   duration: {

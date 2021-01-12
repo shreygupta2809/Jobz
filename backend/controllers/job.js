@@ -34,7 +34,7 @@ exports.createJob = async (req, res) => {
       });
     }
 
-    types = ["Full Time", "Part Time", "Work From Home"];
+    types = ["Full-Time", "Part-Time", "Work-From-Home"];
     if (!types.includes(type)) {
       return res.status(400).json({
         errors: [{ msg: "Please enter valid type" }],
@@ -182,6 +182,40 @@ exports.updateJob = async (req, res) => {
         errors: [{ msg: "You are not authorized to edit this job" }],
       });
     }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};
+
+exports.getJobs = async (req, res) => {
+  try {
+    const conditions = {};
+    if (req.query.jobType) {
+      conditions.type = req.query.jobType;
+    }
+    if (req.query.duration) {
+      conditions.duration = { $lt: req.query.duration * 1 };
+    }
+    if (req.query.salary) {
+      let minSal, maxSal;
+      [minSal, maxSal] = req.query.salary.split("-");
+      conditions.salary = { $gte: minSal * 1, $lte: maxSal * 1 };
+    }
+
+    const jobs = await Job.find(conditions)
+      .select("title recruiter ratings salary duration deadline")
+      .populate({
+        path: "recruiter",
+        select: "_id name email",
+      });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: jobs,
+      },
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ errors: [{ msg: "Server Error" }] });

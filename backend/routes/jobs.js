@@ -5,12 +5,18 @@ const applicationController = require("../controllers/application");
 
 const router = express.Router();
 
-router.post(
-  "/",
-  authController.protect,
-  authController.restrictTo("Recruiter"),
-  jobController.createJob
-);
+router
+  .route("/")
+  .get(
+    authController.protect,
+    authController.restrictTo("Applicant"),
+    jobController.getJobs
+  )
+  .post(
+    authController.protect,
+    authController.restrictTo("Recruiter"),
+    jobController.createJob
+  );
 
 router
   .route("/:id")
