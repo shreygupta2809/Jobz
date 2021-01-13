@@ -23,6 +23,8 @@ app.use("/api/users", require("./routes/users"));
 app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
 app.use("/api/ratings", require("./routes/ratings"));
+app.use("/api/applicant", require("./routes/applicant"));
+app.use("/api/recruiter", require("./routes/recruiter"));
 
 // app.get("/", (req, res) => {
 //   res.send("Server setup successfully");

@@ -27,3 +27,46 @@ exports.me = async (req, res) => {
     res.status(500).json({ errors: [{ msg: "Server Error" }] });
   }
 };
+
+exports.recEmp = async (req, res) => {
+  try {
+    const jobs = await Job.find({ recruiter: req.user.id });
+    const jobIds = jobs.map((job) => job.id);
+    const employees = await Application.find({
+      status: "Accepted",
+      job: { $in: jobIds },
+    })
+      .populate([
+        {
+          path: "applicant",
+          select: "name ratings",
+        },
+        {
+          path: "job",
+          select: "type title",
+        },
+      ])
+      .select("date")
+      .lean();
+
+    employees.forEach(function (el) {
+      if (el.applicant.ratings.length) {
+        el.applicant.avgRating =
+          el.applicant.ratings.reduce((total, next) => total + next.value, 0) /
+          el.applicant.ratings.length;
+      } else {
+        el.applicant.avgRating = 0;
+      }
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: employees,
+      },
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};

@@ -190,3 +190,79 @@ exports.changeStatus = async (req, res) => {
     res.status(500).json({ errors: [{ msg: "Server Error" }] });
   }
 };
+
+exports.myApplications = async (req, res) => {
+  try {
+    const applications = await Application.find({
+      applicant: req.user.id,
+    })
+      .populate({
+        path: "job",
+        select: "recruiter date salary ratings",
+        populate: { path: "recruiter", select: "name" },
+      })
+      .select("title status date")
+      .lean();
+
+    applications.forEach(function (el) {
+      if (el.job.ratings.length) {
+        el.job.avgRating =
+          el.job.ratings.reduce((total, next) => total + next.value, 0) /
+          el.job.ratings.length;
+      } else {
+        el.job.avgRating = 0;
+      }
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: applications,
+      },
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};
+
+exports.getJobApp = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (job.recruiter.toString() !== req.user.id) {
+      return res
+        .status(404)
+        .json({ errors: [{ msg: "You are not authorized to view this job" }] });
+    }
+    const applications = await Application.find({
+      job: req.params.id,
+      status: { $ne: "Rejected" },
+    })
+      .populate({
+        path: "applicant",
+        select: "name skill education ratings",
+      })
+      .select("status date sop")
+      .lean();
+
+    applications.forEach(function (el) {
+      if (el.applicant.ratings.length) {
+        el.applicant.avgRating =
+          el.applicant.ratings.reduce((total, next) => total + next.value, 0) /
+          el.applicant.ratings.length;
+      } else {
+        el.applicant.avgRating = 0;
+      }
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: applications,
+      },
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};

@@ -7,28 +7,18 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(
+  .get(
     authController.protect,
-    authController.restrictTo("Recruiter"),
-    jobController.createJob
+    authController.restrictTo("Applicant"),
+    jobController.getJobs
   );
 
 router
-  .route("/:id")
-  .post(
+  .route("/myApp")
+  .get(
     authController.protect,
     authController.restrictTo("Applicant"),
-    applicationController.apply
-  )
-  .patch(
-    authController.protect,
-    authController.restrictTo("Recruiter"),
-    jobController.updateJob
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo("Recruiter"),
-    jobController.deleteJob
+    applicationController.myApplications
   );
 
 module.exports = router;

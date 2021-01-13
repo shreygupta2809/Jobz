@@ -2,33 +2,32 @@ const express = require("express");
 const authController = require("../controllers/auth");
 const jobController = require("../controllers/job");
 const applicationController = require("../controllers/application");
+const userController = require("../controllers/user");
 
 const router = express.Router();
 
 router
   .route("/")
-  .post(
+  .get(
     authController.protect,
     authController.restrictTo("Recruiter"),
-    jobController.createJob
+    jobController.getJobRec
+  );
+
+router
+  .route("/emp")
+  .get(
+    authController.protect,
+    authController.restrictTo("Recruiter"),
+    userController.recEmp
   );
 
 router
   .route("/:id")
-  .post(
-    authController.protect,
-    authController.restrictTo("Applicant"),
-    applicationController.apply
-  )
-  .patch(
+  .get(
     authController.protect,
     authController.restrictTo("Recruiter"),
-    jobController.updateJob
-  )
-  .delete(
-    authController.protect,
-    authController.restrictTo("Recruiter"),
-    jobController.deleteJob
+    applicationController.getJobApp
   );
 
 module.exports = router;

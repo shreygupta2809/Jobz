@@ -43,7 +43,7 @@ exports.createJob = async (req, res) => {
     durations = [0, 1, 2, 3, 4, 5, 6];
     if (!durations.includes(duration)) {
       return res.status(400).json({
-        errors: [{ msg: "Please enter valid duaration" }],
+        errors: [{ msg: "Please enter valid duration" }],
       });
     }
     if (maxPos <= 0 || maxApp <= 0) {
@@ -191,6 +191,7 @@ exports.updateJob = async (req, res) => {
 exports.getJobs = async (req, res) => {
   try {
     const conditions = {};
+    // const sortCond = {};
     if (req.query.jobType) {
       conditions.type = req.query.jobType;
     }
@@ -203,13 +204,109 @@ exports.getJobs = async (req, res) => {
       conditions.salary = { $gte: minSal * 1, $lte: maxSal * 1 };
     }
 
+    // const sortString = req.query.sort.split(",").join(" ");
+
     const jobs = await Job.find(conditions)
       .select("title recruiter ratings salary duration deadline")
       .populate({
         path: "recruiter",
         select: "_id name email",
-      });
+      })
+      .lean();
 
+    jobs.forEach(function (el) {
+      if (el.ratings.length) {
+        el.avgRating =
+          el.ratings.reduce((total, next) => total + next.value, 0) /
+          el.ratings.length;
+      } else {
+        el.avgRating = 0;
+      }
+    });
+    // .sort(sortString);
+
+    // const jobs = await Job.aggregate([
+    //   {
+    //     $match: conditions,
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "recruiter",
+    //       foreignField: "_id",
+    //       as: "recruiters",
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       avgRating: { $avg: "$ratings.value" },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       title: 1,
+    //       // "recruiters._id": 1,
+    //       // "recruiters.name": 1,
+    //       // "recruiters.email": 1,
+    //       recruiter: { $arrayElemAt: ["$recruiters", 0] },
+    //       avgRating: 1,
+    //       salary: 1,
+    //       duration: 1,
+    //       deadline: 1,
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       title: 1,
+    //       "recruiter._id": 1,
+    //       "recruiter.name": 1,
+    //       "recruiter.email": 1,
+    //       avgRating: 1,
+    //       salary: 1,
+    //       duration: 1,
+    //       deadline: 1,
+    //     },
+    //   },
+    //   {
+    //     $sort: sortCond,
+    //   },
+    // ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        data: jobs,
+      },
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ errors: [{ msg: "Server Error" }] });
+  }
+};
+
+exports.getJobRec = async (req, res) => {
+  try {
+    const jobs = await Job.find({ recruiter: req.user.id })
+      .select("title datePost maxPos")
+      .lean();
+    const jobIds = jobs.map((job) => job._id);
+    const applications = await Application.find({ job: { $in: jobIds } });
+
+    for (var i = 0; i < jobIds.length; i++) {
+      let count = 0;
+      for (var j = 0; j < applications.length; j++) {
+        const el = applications[j];
+        if (
+          el.status !== "Rejected" &&
+          el.job.toString() === jobIds[i].toString()
+        )
+          count++;
+      }
+
+      jobs[i].numApplicants = count;
+    }
     res.status(200).json({
       status: "success",
       data: {
