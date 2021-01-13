@@ -130,7 +130,7 @@ exports.updateJob = async (req, res) => {
       const { deadline, maxPos, maxApp } = req.body;
 
       if (maxPos) {
-        if (maxPos > 0) {
+        if (maxPos > 0 && job.maxPos < maxPos) {
           job.maxPos = maxPos;
         } else {
           return res.status(400).json({
@@ -144,7 +144,7 @@ exports.updateJob = async (req, res) => {
       }
 
       if (maxApp) {
-        if (maxApp > 0) {
+        if (maxApp > 0 && job.maxApp < maxApp) {
           job.maxApp = maxApp;
         } else {
           return res.status(400).json({
@@ -203,6 +203,8 @@ exports.getJobs = async (req, res) => {
       [minSal, maxSal] = req.query.salary.split("-");
       conditions.salary = { $gte: minSal * 1, $lte: maxSal * 1 };
     }
+
+    conditions.deadline = { $gt: Date.now() };
 
     // const sortString = req.query.sort.split(",").join(" ");
 
