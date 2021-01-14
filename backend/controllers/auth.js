@@ -140,19 +140,14 @@ exports.signup = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
-    if (!email || !password || !role) {
+    const { email, password } = req.body;
+    if (!email || !password) {
       return res
         .status(401)
         .json({ errors: [{ msg: "Please enter all details" }] });
     }
 
-    let user;
-    if (role === "Applicant") {
-      user = await Applicant.findOne({ email });
-    } else if (role === "Recruiter") {
-      user = await Recruiter.findOne({ email });
-    }
+    let user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ errors: [{ msg: "Invalid Credentials" }] });
