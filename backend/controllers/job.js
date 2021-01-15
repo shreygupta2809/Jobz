@@ -1,6 +1,7 @@
 const Job = require("../models/job");
 const Recruiter = require("../models/recruiter");
 const Application = require("../models/application");
+const job = require("../models/job");
 
 exports.createJob = async (req, res) => {
   try {
@@ -209,12 +210,38 @@ exports.getJobs = async (req, res) => {
     // const sortString = req.query.sort.split(",").join(" ");
 
     const jobs = await Job.find(conditions)
-      .select("title recruiter ratings salary duration deadline")
+      .select("title recruiter ratings salary duration deadline maxPos")
       .populate({
         path: "recruiter",
         select: "_id name email",
       })
       .lean();
+
+    const applications = await Application.find({ applicant: req.user.id });
+
+    for (var i = 0; i < jobs.length; i++) {
+      let applied = "Apply";
+      for (var j = 0; j < applications.length; j++) {
+        if (applications[j].job.toString() === jobs[i]._id.toString()) {
+          applied = "Applied";
+          break;
+        }
+      }
+      jobs[i].applied = applied;
+    }
+
+    const jobApplication = await Application.find({ status: "Accepted" });
+
+    for (var i = 0; i < jobs.length; i++) {
+      let count = 0;
+      for (var j = 0; j < jobApplication.length; j++) {
+        if (jobApplication[j].job.toString() === jobs[i]._id.toString()) {
+          count++;
+        }
+      }
+      const full = jobs[i].maxPos === count;
+      jobs[i].full = full;
+    }
 
     jobs.forEach(function (el) {
       if (el.ratings.length) {

@@ -1,7 +1,9 @@
 import { React, useState } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Redirect, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from './LoginSlice';
+// import { login } from './LoginSlice';
+import { signin, signout, signerror } from './LoginSlice';
+import api from '../utils/apiCalls';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -36,22 +38,34 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Login = () => {
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const login = async (email, password) => {
+        try {
+            const response = await api.post('/api/users/login', {
+                body: { email, password }
+            });
+            const result = response.data;
+            dispatch(signin({ token: result.token, role: result.role }));
+        } catch (err) {
+            const message = err.response.data.errors[0].msg;
+            dispatch(signout());
+            dispatch(signerror({ message }));
+            console.error(err);
+        }
+    };
+
     const classes = useStyles();
 
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
-    const dispatch = useDispatch();
 
-    const loggedIn = useSelector(state => state.isAuthenticated);
-    const role = useSelector(state => state.role);
-    const error = useSelector(state => state.error);
+    const loggedIn = useSelector(state => state.login.isAuthenticated);
 
-    let alert;
-    if (error) {
-        alert = <MyAlert />;
-    }
+    const role = useSelector(state => state.login.role);
+    const error = useSelector(state => state.login.error);
 
     if (loggedIn) return <Redirect to="/dashboard" />;
 
@@ -64,12 +78,12 @@ const Login = () => {
 
     const onSubmit = e => {
         e.preventDefault();
-        dispatch(login(formData.email, formData.password));
+        login(formData.email, formData.password);
     };
 
     return (
         <Container component="main" maxWidth="xs">
-            {alert}
+            {error && <MyAlert />}
             <CssBaseline />
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
@@ -123,6 +137,7 @@ const Login = () => {
                     </Grid>
                 </form>
             </div>
+            {/* {loggedIn && <Redirect to="/dashboard"></Redirect>} */}
         </Container>
     );
 };

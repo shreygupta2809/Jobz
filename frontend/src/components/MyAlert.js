@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
 
@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
 
 const MyAlert = () => {
     const classes = useStyles();
-    const error = useSelector(state => state.error);
+    const error = useSelector(state => state.login.error);
 
     return (
         <div className={classes.root}>

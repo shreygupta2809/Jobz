@@ -1,8 +1,7 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Redirect, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import Navbar from './Navbar';
 import api from '../utils/apiCalls';
 
 import Button from '@material-ui/core/Button';
@@ -50,23 +49,35 @@ const columns = [
 ];
 
 const Dashboard = () => {
-    // let response;
-    // axios.get(`/api/applicant`).then(res => {
-    //     response = res.data.data;
-    //     const rows = response.data;
-    //     return (
-    //         <div style={{ height: 300, width: '100%' }}>
-    //             <DataGrid rows={rows} columns={columns} />
-    //         </div>
-    //     );
-    // });
-    // console.log(response);
-    const loggedIn = useSelector(state => state.isAuthenticated);
-    if (!loggedIn) return <Redirect to="/login" />;
-    const rows = [];
+    const loggedIn = useSelector(state => state.login.isAuthenticated);
+    const [jobs, setJobs] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    const getAllJobs = async () => {
+        setLoading(true);
+        const res = await axios.get(`/api/applicant`);
+        console.log(res);
+        setJobs(res.data.data.data);
+        setLoading(false);
+    };
+    const history = useHistory();
+
+    useEffect(() => {
+        if (!loggedIn) history.push('/login');
+        else getAllJobs();
+    }, [loggedIn]);
+
+    // if (!loggedIn) return <Redirect to="/login" />;
+
+    console.log(jobs);
+    if (loading) {
+        return <h1>loading</h1>;
+    }
+    // const jobs = [];
     return (
         <div style={{ height: 300, width: '100%' }}>
-            <DataGrid rows={rows} columns={columns} />
+            {/* <DataGrid rows={jobs ? jobs : []} columns={columns} /> */}
+            {JSON.stringify(jobs)}
         </div>
     );
 };

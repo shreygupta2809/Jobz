@@ -26,8 +26,6 @@ import WorkIcon from '@material-ui/icons/Work';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import GroupIcon from '@material-ui/icons/Group';
 import DescriptionIcon from '@material-ui/icons/Description';
-import Dashboard from './Dashboard';
-import Login from './Login';
 
 const drawerWidth = 240;
 
@@ -93,11 +91,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Navbar = ({ children }) => {
-    console.log('Hello');
-    const loggedIn = useSelector(state => state.isAuthenticated);
-    const role = useSelector(state => state.role);
+    const loggedIn = useSelector(state => state.login.isAuthenticated);
+    const role = useSelector(state => state.login.role);
 
-    const disptach = useDispatch();
+    const dispatch = useDispatch();
 
     const classes = useStyles();
     const theme = useTheme();
@@ -105,7 +102,7 @@ const Navbar = ({ children }) => {
 
     const onClick = e => {
         e.preventDefault();
-        disptach(signout());
+        dispatch(signout());
     };
     // if (!loggedIn) return <Redirect to="/login" />;
 
@@ -151,7 +148,7 @@ const Navbar = ({ children }) => {
             </ListItem>
         );
     }
-    console.log(links, logoutRender);
+
     return (
         <div className={classes.root}>
             <CssBaseline />

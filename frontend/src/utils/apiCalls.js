@@ -1,13 +1,5 @@
 import axios from 'axios';
 
-function getConfig() {
-    return {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
-}
-
 export default {
     get(url, payload) {
         if (payload)
@@ -23,10 +15,10 @@ export default {
         return axios.post(url, payload.body);
     },
     put(url, payload = {}) {
-        return axios.put(url, payload.body, getConfig());
+        return axios.put(url, payload.body);
     },
     patch(url, payload = {}) {
-        return axios.patch(url, payload.body, getConfig());
+        return axios.patch(url, payload.body);
     },
     delete(url) {
         return axios.delete(url);

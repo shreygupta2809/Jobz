@@ -3,5 +3,5 @@ import loginReducer from '../components/LoginSlice';
 
 export default combineReducers({
     // define your reducers here
-    // login: loginReducer
+    login: loginReducer
 });
