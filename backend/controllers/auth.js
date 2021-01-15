@@ -17,7 +17,8 @@ const createSendToken = (user, statusCode, req, res) => {
     },
     (err, token) => {
       if (err) throw err;
-      res.status(statusCode).json({ token });
+      const role = user.role;
+      res.status(statusCode).json({ token, role });
     }
   );
 };

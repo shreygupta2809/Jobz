@@ -1,8 +1,9 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import loginReducer from '../components/LoginSlice';
 
-import rootReducer from './rootReducer';
+// import rootReducer from './rootReducer';
 const store = configureStore({
-    reducer: rootReducer,
+    reducer: loginReducer,
     devTools: process.env.NODE_ENV !== 'production'
 });
 

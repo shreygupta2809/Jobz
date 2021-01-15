@@ -1,69 +1,7 @@
-// import React from 'react';
-// // import { Link } from 'react-router-dom';
-// import { AppBar, Toolbar, makeStyles, Link } from '@material-ui/core';
-
-// const useStyles = makeStyles({
-//     header: {
-//         backgroundColor: 'blue',
-//         color: 'white',
-//         opacity: 0.9
-//     }
-// });
-
-// const linkStyle = {
-//     fontSize: '20px',
-//     cursor: 'pointer',
-//     marginRight: '15px',
-//     textDecoration: 'none'
-// };
-
-// function Navbar() {
-//     const classes = useStyles();
-
-//     let links = [];
-//     const loggedIn = 1;
-//     const role = 'Applicant';
-//     if (!loggedIn) {
-//         links = [
-//             { title: 'Login', to: '/login' },
-//             { title: 'Register', to: '/register' }
-//         ];
-//     } else {
-//         if (role === 'Applicant') {
-//             links = [
-//                 { title: 'Jobs', to: '/' },
-//                 { title: 'My Applications', to: '/' },
-//                 { title: 'Profile', to: '/' }
-//             ];
-//         }
-//         if (role === 'Recruiter') {
-//             links = [
-//                 { title: 'My Jobs', to: '/' },
-//                 { title: 'My Employees', to: '/' },
-//                 { title: 'Profile', to: '/' }
-//             ];
-//         }
-//         links.push({ title: 'Logout', to: '/' });
-//     }
-
-//     return (
-//         <div>
-//             <AppBar position="static" className={classes.header}>
-//                 <Toolbar>
-//                     {links.map(link => (
-//                         <Link href={link.to} color="inherit" style={linkStyle}>
-//                             {link.title}
-//                         </Link>
-//                     ))}
-//                 </Toolbar>
-//             </AppBar>
-//         </div>
-//     );
-// }
-
-// export default Navbar;
-
 import React from 'react';
+import { Link, Redirect, Switch } from 'react-router-dom';
+import { signout } from './LoginSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -88,6 +26,8 @@ import WorkIcon from '@material-ui/icons/Work';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import GroupIcon from '@material-ui/icons/Group';
 import DescriptionIcon from '@material-ui/icons/Description';
+import Dashboard from './Dashboard';
+import Login from './Login';
 
 const drawerWidth = 240;
 
@@ -152,10 +92,22 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Navbar = () => {
+const Navbar = ({ children }) => {
+    console.log('Hello');
+    const loggedIn = useSelector(state => state.isAuthenticated);
+    const role = useSelector(state => state.role);
+
+    const disptach = useDispatch();
+
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+
+    const onClick = e => {
+        e.preventDefault();
+        disptach(signout());
+    };
+    // if (!loggedIn) return <Redirect to="/login" />;
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -166,8 +118,6 @@ const Navbar = () => {
     };
 
     let links = [];
-    const loggedIn = 1;
-    const role = 'Applicant';
 
     if (!loggedIn) {
         links = [
@@ -181,17 +131,27 @@ const Navbar = () => {
                 { title: 'My Applications', to: '/', icon: <DescriptionIcon /> },
                 { title: 'Profile', to: '/', icon: <PersonIcon /> }
             ];
-        }
-        if (role === 'Recruiter') {
+        } else if (role === 'Recruiter') {
             links = [
                 { title: 'My Jobs', to: '/', icon: <WorkIcon /> },
                 { title: 'My Employees', to: '/', icon: <GroupIcon /> },
                 { title: 'Profile', to: '/', icon: <PersonIcon /> }
             ];
         }
-        links.push({ title: 'Logout', to: '/', icon: <LockIcon /> });
     }
 
+    let logoutRender;
+    if (loggedIn) {
+        logoutRender = (
+            <ListItem button onClick={onClick} key="Logout" component={Link} to="/login">
+                <ListItemIcon>
+                    <LockIcon />{' '}
+                </ListItemIcon>
+                <ListItemText primary="Logout" />
+            </ListItem>
+        );
+    }
+    console.log(links, logoutRender);
     return (
         <div className={classes.root}>
             <CssBaseline />
@@ -243,19 +203,20 @@ const Navbar = () => {
                 <Divider />
                 <List>
                     {links.map(link => (
-                        <ListItem button key={link.title}>
+                        <ListItem button key={link.title} component={Link} to={link.to}>
                             <ListItemIcon>{link.icon}</ListItemIcon>
                             <ListItemText primary={link.title} />
                         </ListItem>
                     ))}
+                    {logoutRender}
                 </List>
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                <Typography paragraph>Body</Typography>
+                {children}
             </main>
         </div>
     );
-}
+};
 
 export default Navbar;

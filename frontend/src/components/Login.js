@@ -1,14 +1,19 @@
-import React from 'react';
+import { React, useState } from 'react';
+import { Link, Redirect } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from './LoginSlice';
+
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
+// import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import MyAlert from './MyAlert';
 
 const useStyles = makeStyles(theme => ({
     paper: {
@@ -33,8 +38,38 @@ const useStyles = makeStyles(theme => ({
 const Login = () => {
     const classes = useStyles();
 
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+    const dispatch = useDispatch();
+
+    const loggedIn = useSelector(state => state.isAuthenticated);
+    const role = useSelector(state => state.role);
+    const error = useSelector(state => state.error);
+
+    let alert;
+    if (error) {
+        alert = <MyAlert />;
+    }
+
+    if (loggedIn) return <Redirect to="/dashboard" />;
+
+    const onChange = e => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const onSubmit = e => {
+        e.preventDefault();
+        dispatch(login(formData.email, formData.password));
+    };
+
     return (
         <Container component="main" maxWidth="xs">
+            {alert}
             <CssBaseline />
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
@@ -43,7 +78,7 @@ const Login = () => {
                 <Typography component="h1" variant="h5">
                     Log in
                 </Typography>
-                <form className={classes.form} noValidate>
+                <form onSubmit={onSubmit} className={classes.form} noValidate>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -52,7 +87,9 @@ const Login = () => {
                         id="email"
                         label="Email Address"
                         name="email"
+                        value={formData.email}
                         autoComplete="email"
+                        onChange={onChange}
                         autoFocus
                     />
                     <TextField
@@ -64,6 +101,8 @@ const Login = () => {
                         label="Password"
                         type="password"
                         id="password"
+                        value={formData.password}
+                        onChange={onChange}
                         autoComplete="current-password"
                     />
                     <Button
@@ -77,7 +116,7 @@ const Login = () => {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link href="/register" variant="body2">
+                            <Link to="/register" variant="body2">
                                 {"Don't have an account? Register Now"}
                             </Link>
                         </Grid>
@@ -86,6 +125,6 @@ const Login = () => {
             </div>
         </Container>
     );
-}
+};
 
 export default Login;
