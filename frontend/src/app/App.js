@@ -1,7 +1,6 @@
 import { Provider as StoreProvider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import Profile from '../components/Home';
-import Main from '../components/Main';
+import Profile from '../components/Profile';
 import Navbar from '../components/Navbar';
 import Login from '../components/Login';
 import Register from '../components/Register';
@@ -26,6 +25,7 @@ function App() {
                         <Route exact path="/dashboard" exact component={Dashboard} />
                         <Route exact path="/login" exact component={Login} />
                         <Route exact path="/register" exact component={Register} />
+                        <Route exact path="/profile" exact component={Profile} />
                         {/* <Route exact path="/login" exact component={Login} />
                         <Route exact path="/navbar" exact component={Navbar} /> */}
                     </Switch>

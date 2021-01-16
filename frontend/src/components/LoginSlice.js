@@ -29,12 +29,15 @@ const loginSlice = createSlice({
         },
         signerror: (state, action) => {
             state.error = action.payload.message;
+        },
+        signnoerror: (state, action) => {
+            state.error = null;
         }
     }
 });
 
-const { signin, signout, signerror } = loginSlice.actions;
+const { signin, signout, signerror, signnoerror } = loginSlice.actions;
 
-export { signin, signout, signerror };
+export { signin, signout, signerror, signnoerror };
 
 export default loginSlice.reducer;

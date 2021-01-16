@@ -1,22 +1,18 @@
-import { React, useState } from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { React, useState, useEffect } from 'react';
+import { Link, Redirect, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { signin, signout, signerror } from './LoginSlice';
+import { signin, signout, signerror, signnoerror } from './LoginSlice';
 import api from '../utils/apiCalls';
+import axios from 'axios';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import PersonIcon from '@material-ui/icons/Person';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import IconButton from '@material-ui/core/IconButton';
@@ -54,18 +50,29 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const Register = () => {
+const Profile = () => {
     const dispatch = useDispatch();
-    const register = async formData => {
+
+    const loggedIn = useSelector(state => state.login.isAuthenticated);
+
+    const role = useSelector(state => state.login.role);
+    const error = useSelector(state => state.login.error);
+
+    const [loading, setLoading] = useState(false);
+    const [upd, setUpd] = useState(false);
+
+    const update = async formData => {
         try {
-            const response = await api.post('/api/users/signup', {
+            const response = await api.patch('/api/users/update', {
                 body: formData
             });
             const result = response.data;
-            dispatch(signin({ token: result.token, role: result.role }));
+            dispatch(signnoerror());
+            setUpd(!upd);
         } catch (err) {
+            setUpd(!upd);
             const message = err.response.data.errors[0].msg;
-            dispatch(signout());
+            // dispatch(signout());
             dispatch(signerror({ message }));
             console.error(err);
         }
@@ -87,12 +94,25 @@ const Register = () => {
     const [edu, setEdu] = useState([{ institute: '', startYear: '', endYear: '' }]);
     const [skill, setSkill] = useState(['']);
 
-    const loggedIn = useSelector(state => state.login.isAuthenticated);
+    const getMe = async () => {
+        setLoading(true);
+        const res = await axios.get(`/api/users/`);
+        console.log(res);
+        const result = res.data.data.data;
+        console.log(result);
+        setFormData(result);
+        setEdu(result.education);
+        setSkill(result.skill);
+        setLoading(false);
+    };
+    const history = useHistory();
 
-    const role = useSelector(state => state.login.role);
-    const error = useSelector(state => state.login.error);
+    useEffect(() => {
+        if (!loggedIn) history.push('/login');
+        else getMe();
+    }, [loggedIn, upd]);
 
-    if (loggedIn) return <Redirect to="/dashboard" />;
+    // if (!loggedIn) return <Redirect to="/login" />;
 
     const onChange = e => {
         setFormData({
@@ -168,9 +188,12 @@ const Register = () => {
 
     const onSubmit = e => {
         e.preventDefault();
-        // console.log(formData);
-        register(formData);
+        console.log(formData);
+        update(formData);
     };
+    if (loading) {
+        return <h1>loading</h1>;
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -178,25 +201,12 @@ const Register = () => {
             <CssBaseline />
             <div className={classes.paper}>
                 <Avatar className={classes.avatar}>
-                    <LockOutlinedIcon />
+                    <PersonIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Register
+                    Profile
                 </Typography>
                 <form onSubmit={onSubmit} className={classes.form} noValidate>
-                    <FormControl className={classes.formControl}>
-                        <InputLabel id="role">Role</InputLabel>
-                        <Select
-                            labelId="Role"
-                            id="role"
-                            value={formData.role}
-                            onChange={onChange}
-                            name="role"
-                        >
-                            <MenuItem value={'Applicant'}>Applicant</MenuItem>
-                            <MenuItem value={'Recruiter'}>Recruiter</MenuItem>
-                        </Select>
-                    </FormControl>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -211,6 +221,7 @@ const Register = () => {
                         autoFocus
                     />
                     <TextField
+                        disabled
                         variant="outlined"
                         margin="normal"
                         required
@@ -224,6 +235,7 @@ const Register = () => {
                         autoFocus
                     />
                     <TextField
+                        disabled
                         variant="outlined"
                         margin="normal"
                         required
@@ -236,12 +248,12 @@ const Register = () => {
                         onChange={onChange}
                         autoComplete="current-password"
                     />
-                    {formData.role === 'Applicant' && (
+                    {role === 'Applicant' && (
                         <Typography component="h1" variant="h6">
                             Education
                         </Typography>
                     )}
-                    {formData.role === 'Applicant' &&
+                    {role === 'Applicant' &&
                         edu.map((e, index) => (
                             <div key={index}>
                                 <TextField
@@ -270,17 +282,17 @@ const Register = () => {
                                 </IconButton>
                             </div>
                         ))}
-                    {formData.role === 'Applicant' && (
+                    {role === 'Applicant' && (
                         <IconButton onClick={addEduField}>
                             <AddIcon />
                         </IconButton>
                     )}
-                    {formData.role === 'Applicant' && (
+                    {role === 'Applicant' && (
                         <Typography component="h1" variant="h6">
                             Skills
                         </Typography>
                     )}
-                    {formData.role === 'Applicant' &&
+                    {role === 'Applicant' &&
                         checkSkill.map(e => (
                             <FormControlLabel
                                 control={
@@ -293,7 +305,7 @@ const Register = () => {
                                 label={e}
                             />
                         ))}
-                    {formData.role === 'Applicant' &&
+                    {role === 'Applicant' &&
                         skill.map((e, index) => (
                             <div key={index}>
                                 <TextField
@@ -310,12 +322,12 @@ const Register = () => {
                                 </IconButton>
                             </div>
                         ))}
-                    {formData.role === 'Applicant' && (
+                    {role === 'Applicant' && (
                         <IconButton onClick={addSkillField}>
                             <AddIcon />
                         </IconButton>
                     )}
-                    {formData.role === 'Recruiter' && (
+                    {role === 'Recruiter' && (
                         <TextField
                             variant="outlined"
                             margin="normal"
@@ -329,7 +341,7 @@ const Register = () => {
                             autoFocus
                         />
                     )}
-                    {formData.role === 'Recruiter' && (
+                    {role === 'Recruiter' && (
                         <TextField
                             variant="outlined"
                             margin="normal"
@@ -349,19 +361,12 @@ const Register = () => {
                         color="primary"
                         className={classes.submit}
                     >
-                        Register
+                        Update
                     </Button>
-                    <Grid container>
-                        <Grid item>
-                            <Link to="/login" variant="body2">
-                                {'Already have an account? Login Now'}
-                            </Link>
-                        </Grid>
-                    </Grid>
                 </form>
             </div>
         </Container>
     );
 };
 
-export default Register;
+export default Profile;

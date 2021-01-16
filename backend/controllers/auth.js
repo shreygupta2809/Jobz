@@ -67,28 +67,31 @@ exports.signup = async (req, res) => {
 
       var today = new Date();
       var year = today.getFullYear();
+      let newEducation = [];
       if (education) {
         for (var i = 0; i < education.length; i++) {
           el = education[i];
+          if (!el.institute || !el.startYear || !el.endYear) {
+            continue;
+          }
           if (!el.institute || !el.startYear || el.startYear > year) {
             return res.status(400).json({
               errors: [
                 { msg: "Please enter correct institute and start date" },
               ],
             });
-          }
-          if (el.endYear && el.endYear < el.startYear) {
+          } else if (el.endYear && el.endYear < el.startYear) {
             return res.status(400).json({
               errors: [{ msg: "End date cannot be eariler than start date" }],
             });
           }
+          newEducation.push(el);
         }
       }
 
       if (skill) {
         skill = skill.filter(unique);
         skill = skill.filter((item) => item);
-        console.log(skill);
       }
 
       user = new Applicant({
@@ -97,7 +100,7 @@ exports.signup = async (req, res) => {
         password,
         role,
         skill,
-        education,
+        education: newEducation,
       });
     } else if (role === "Recruiter") {
       let { contact, bio } = req.body;

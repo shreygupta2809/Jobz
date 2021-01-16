@@ -210,7 +210,7 @@ exports.getJobs = async (req, res) => {
     // const sortString = req.query.sort.split(",").join(" ");
 
     const jobs = await Job.find(conditions)
-      .select("title recruiter ratings salary duration deadline maxPos")
+      .select("title recruiter ratings salary duration deadline maxPos type")
       .populate({
         path: "recruiter",
         select: "_id name email",
@@ -241,6 +241,7 @@ exports.getJobs = async (req, res) => {
       }
       const full = jobs[i].maxPos === count;
       jobs[i].full = full;
+      jobs[i].leftPos = jobs[i].maxPos - count;
     }
 
     jobs.forEach(function (el) {

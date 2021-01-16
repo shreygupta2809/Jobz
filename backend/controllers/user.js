@@ -4,6 +4,10 @@ const Application = require("../models/application");
 const User = require("../models/user");
 const Applicant = require("../models/applicant");
 
+function countWords(str) {
+  return str.replace(/\s+/g, " ").trim().split(" ").length;
+}
+
 exports.me = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -90,9 +94,13 @@ exports.updateUser = async (req, res) => {
 
       var today = new Date();
       var year = today.getFullYear();
+      let newEducation = [];
       if (education) {
         for (var i = 0; i < education.length; i++) {
           el = education[i];
+          if (!el.institute || !el.startYear || !el.endYear) {
+            continue;
+          }
           if (!el.institute || !el.startYear || el.startYear > year) {
             return res.status(400).json({
               errors: [
@@ -105,8 +113,9 @@ exports.updateUser = async (req, res) => {
               errors: [{ msg: "End date cannot be eariler than start date" }],
             });
           }
+          newEducation.push(el);
         }
-        user.education = education;
+        user.education = newEducation;
       }
 
       if (skill) {
