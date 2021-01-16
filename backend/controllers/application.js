@@ -171,6 +171,13 @@ exports.changeStatus = async (req, res) => {
           ],
         });
       }
+
+      if (application.status === "Rejected" && status === "Shortlisted") {
+        return res.status(400).json({
+          errors: [{ msg: "You cannot shortlist a rejectd application" }],
+        });
+      }
+
       application.status = status;
       await application.save();
     } else {

@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
-import api from '../utils/apiCalls';
 
 const loginSlice = createSlice({
     name: 'login',

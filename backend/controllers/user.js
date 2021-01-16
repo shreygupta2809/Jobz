@@ -71,6 +71,10 @@ exports.recEmp = async (req, res) => {
   }
 };
 
+const unique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
+
 exports.updateUser = async (req, res) => {
   try {
     let user = await User.findById(req.user.id);
@@ -82,19 +86,14 @@ exports.updateUser = async (req, res) => {
     }
 
     if (role === "Applicant") {
-      const { skill, education } = req.body;
+      let { skill, education } = req.body;
 
       var today = new Date();
       var year = today.getFullYear();
       if (education) {
         for (var i = 0; i < education.length; i++) {
           el = education[i];
-          if (
-            !el.institute ||
-            !el.startYear ||
-            typeof el.startYear !== "number" ||
-            el.startYear > year
-          ) {
+          if (!el.institute || !el.startYear || el.startYear > year) {
             return res.status(400).json({
               errors: [
                 { msg: "Please enter correct institute and start date" },
@@ -111,11 +110,15 @@ exports.updateUser = async (req, res) => {
       }
 
       if (skill) {
+        skill = skill.filter(unique);
+        skill = skill.filter((item) => item);
         user.skill = skill;
       }
     } else if (role === "Recruiter") {
-      const { contact, bio } = req.body;
+      let { contact, bio } = req.body;
+
       if (contact) {
+        contact = contact * 1;
         if (
           typeof contact !== "number" ||
           contact < 111111111 ||
