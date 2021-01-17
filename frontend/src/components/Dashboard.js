@@ -248,6 +248,7 @@ const Dashboard = () => {
         {
             field: 'salary',
             headerName: 'Salary',
+            width: 150,
             sortable: false
         },
         {
@@ -267,6 +268,7 @@ const Dashboard = () => {
         {
             field: 'avgRating',
             headerName: 'Rating',
+            width: 150,
             sortable: false
         },
         {
@@ -476,7 +478,7 @@ const Dashboard = () => {
                 </Grid>
                 <Grid container spacing={3}>
                     <Grid item xs={3}>
-                        <InputLabel id="sortDuration">Duration</InputLabel>
+                        <InputLabel id="sortDuration">Sort Duration By:</InputLabel>
                         <Select
                             labelId="sortDuration"
                             id="sortDuration"
@@ -491,7 +493,7 @@ const Dashboard = () => {
                         </Select>
                     </Grid>
                     <Grid item xs={3}>
-                        <InputLabel id="sortSalary">Salary</InputLabel>
+                        <InputLabel id="sortSalary">Sort Salary By:</InputLabel>
                         <Select
                             labelId="sortSalary"
                             id="sortSalary"
@@ -506,7 +508,7 @@ const Dashboard = () => {
                         </Select>
                     </Grid>
                     <Grid item xs={3}>
-                        <InputLabel id="sortRating">Rating</InputLabel>
+                        <InputLabel id="sortRating">Sort Rating By:</InputLabel>
                         <Select
                             labelId="sortRating"
                             id="sortRating"

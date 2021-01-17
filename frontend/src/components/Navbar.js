@@ -125,7 +125,7 @@ const Navbar = ({ children }) => {
         if (role === 'Applicant') {
             links = [
                 { title: 'Jobs', to: '/dashboard', icon: <DashboardIcon /> },
-                { title: 'My Applications', to: '/', icon: <DescriptionIcon /> },
+                { title: 'My Applications', to: '/myapplication', icon: <DescriptionIcon /> },
                 { title: 'Profile', to: '/profile', icon: <PersonIcon /> }
             ];
         } else if (role === 'Recruiter') {

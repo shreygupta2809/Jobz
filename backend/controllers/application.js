@@ -205,10 +205,10 @@ exports.myApplications = async (req, res) => {
     })
       .populate({
         path: "job",
-        select: "recruiter date salary ratings",
+        select: "title recruiter date salary ratings",
         populate: { path: "recruiter", select: "name" },
       })
-      .select("title status date")
+      .select("status date")
       .lean();
 
     applications.forEach(function (el) {
@@ -216,8 +216,12 @@ exports.myApplications = async (req, res) => {
         el.job.avgRating =
           el.job.ratings.reduce((total, next) => total + next.value, 0) /
           el.job.ratings.length;
+        const appIds = el.job.ratings.map((a) => a.appId.toString());
+        if (appIds.includes(req.user.id)) el.hasRated = 1;
+        else el.hasRated = 0;
       } else {
         el.job.avgRating = 0;
+        el.hasRated = 0;
       }
     });
 

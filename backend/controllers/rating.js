@@ -10,7 +10,8 @@ exports.rateJob = async (req, res) => {
       return res.status(400).json({ errors: [{ msg: "No Job with that Id" }] });
     }
 
-    const { value } = req.body;
+    let { value } = req.body;
+    value = value * 1;
     const appId = req.user.id;
 
     const application = await Application.findOne({
@@ -68,7 +69,8 @@ exports.rateApplicant = async (req, res) => {
         .json({ errors: [{ msg: "No Applicant with that Id" }] });
     }
 
-    const { value } = req.body;
+    let { value } = req.body;
+    value = value * 1;
     const recId = req.user.id;
 
     const application = await Application.findOne({
