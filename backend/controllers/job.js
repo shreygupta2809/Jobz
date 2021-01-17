@@ -202,7 +202,10 @@ exports.getJobs = async (req, res) => {
     if (req.query.salary) {
       let minSal, maxSal;
       [minSal, maxSal] = req.query.salary.split("-");
-      conditions.salary = { $gte: minSal * 1, $lte: maxSal * 1 };
+      if (minSal && maxSal)
+        conditions.salary = { $gte: minSal * 1, $lte: maxSal * 1 };
+      else if (minSal) conditions.salary = { $gte: minSal * 1 };
+      else if (maxSal) conditions.salary = { $lte: maxSal * 1 };
     }
 
     conditions.deadline = { $gt: Date.now() };

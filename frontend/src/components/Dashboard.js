@@ -2,166 +2,337 @@ import { React, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, Redirect, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { signerror, signnoerror } from './LoginSlice';
+import api from '../utils/apiCalls';
+import MyAlert from './MyAlert';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { DataGrid } from '@material-ui/data-grid';
-import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Slider from '@material-ui/core/Slider';
 import Select from '@material-ui/core/Select';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-function getRecruiterName(params) {
-    return params.getValue('recruiter').name;
-}
+// function getRecruiterName(params) {
+//     return params.getValue('recruiter').name;
+// }
 
-function getDeadline(params) {
-    var localDate = new Date(params.getValue('deadline'));
-    return localDate.toDateString();
-}
+// function getDeadline(params) {
+//     var localDate = new Date(params.getValue('deadline'));
+//     return localDate.toDateString();
+// }
 
-function getDuration(params) {
-    const dur = params.getValue('duration');
-    if (dur) return `${dur} Months`;
-    else return 'Indefinite';
-}
+// function getDuration(params) {
+//     const dur = params.getValue('duration');
+//     if (dur) return `${dur} Months`;
+//     else return 'Indefinite';
+// }
 
-function applyButton(params) {
-    let applied = params.getValue('applied');
-    const full = params.getValue('full');
-    if (applied === 'Apply' && !full) {
-        return (
-            <strong>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    style={{ marginLeft: 16 }}
-                >
-                    Apply
-                </Button>
-            </strong>
-        );
-    }
-    return (
-        <strong>
-            <Button
-                variant="contained"
-                size="small"
-                color="primary"
-                disabled
-                style={{ marginLeft: 16 }}
-            >
-                {applied === 'Applied' ? 'Applied' : 'Full'}
-            </Button>
-        </strong>
-    );
-}
+// function applyButton(params) {
+//     let applied = params.getValue('applied');
+//     const full = params.getValue('full');
+//     if (applied === 'Apply' && !full) {
+//         return (
+//             <strong>
+//                 <Button
+//                     variant="contained"
+//                     color="primary"
+//                     size="small"
+//                     onClick={() => console.log(params.getValue('id'))}
+//                     style={{ marginLeft: 16 }}
+//                 >
+//                     Apply
+//                 </Button>
+//             </strong>
+//         );
+//     }
+//     return (
+//         <strong>
+//             <Button
+//                 variant="contained"
+//                 size="small"
+//                 color="primary"
+//                 disabled
+//                 style={{ marginLeft: 16 }}
+//             >
+//                 {applied === 'Applied' ? 'Applied' : 'Full'}
+//             </Button>
+//         </strong>
+//     );
+// }
 
-const columns = [
-    {
-        field: 'title',
-        headerName: 'Title',
-        width: 150,
-        sortable: false
-    },
-    {
-        field: 'type',
-        headerName: 'Type',
-        width: 150,
-        sortable: false
-    },
-    {
-        field: 'recuiter',
-        headerName: 'Recruiter',
-        width: 150,
-        valueGetter: getRecruiterName,
-        sortable: false
-    },
-    {
-        field: 'salary',
-        headerName: 'Salary',
-        sortable: false
-    },
-    {
-        field: 'duration',
-        headerName: 'Duration',
-        width: 150,
-        valueFormatter: getDuration,
-        sortable: false
-    },
-    {
-        field: 'deadline',
-        headerName: 'Deadline',
-        width: 150,
-        valueFormatter: getDeadline,
-        sortable: false
-    },
-    {
-        field: 'avgRating',
-        headerName: 'Rating',
-        sortable: false
-    },
-    {
-        field: 'apply',
-        headerName: 'Apply',
-        renderCell: applyButton,
-        width: 150,
-        sortable: false
-    }
-];
-
-const useStyles = makeStyles(theme => ({
-    root: {
-        flexGrow: 1
-    },
-    paper: {
-        padding: theme.spacing(2),
-        textAlign: 'center',
-        color: theme.palette.text.secondary
-    }
-}));
+// const columns = [
+//     {
+//         field: 'title',
+//         headerName: 'Title',
+//         width: 150,
+//         sortable: false
+//     },
+//     {
+//         field: 'type',
+//         headerName: 'Type',
+//         width: 150,
+//         sortable: false
+//     },
+//     {
+//         field: 'recuiter',
+//         headerName: 'Recruiter',
+//         width: 150,
+//         valueGetter: getRecruiterName,
+//         sortable: false
+//     },
+//     {
+//         field: 'salary',
+//         headerName: 'Salary',
+//         sortable: false
+//     },
+//     {
+//         field: 'duration',
+//         headerName: 'Duration',
+//         width: 150,
+//         valueFormatter: getDuration,
+//         sortable: false
+//     },
+//     {
+//         field: 'deadline',
+//         headerName: 'Deadline',
+//         width: 150,
+//         valueFormatter: getDeadline,
+//         sortable: false
+//     },
+//     {
+//         field: 'avgRating',
+//         headerName: 'Rating',
+//         sortable: false
+//     },
+//     {
+//         field: 'apply',
+//         headerName: 'Apply',
+//         renderCell: applyButton,
+//         width: 150,
+//         sortable: false
+//     }
+// ];
 
 const Dashboard = () => {
+    const dispatch = useDispatch();
     const loggedIn = useSelector(state => state.login.isAuthenticated);
+    const error = useSelector(state => state.login.error);
     const [jobs, setJobs] = useState(undefined);
-
-    const classes = useStyles();
-    // const [type, setType] = useState('');
-    // const [dur, setDur] = useState('');
-    // const [minsal, setMinSal] = useState('');
-    // const [maxsal, setMaxSal] = useState('');
 
     const [filter, setFilter] = useState({
         jobType: '',
         duration: '',
         salary: ''
     });
-    const [value, setValue] = useState(['', '']);
-    const [maxi, setMaxi] = useState();
+    const [sorts, setSort] = useState({
+        sortDuration: '',
+        sortRating: '',
+        sortSalary: ''
+    });
+
+    const [maxSal, setMaxSal] = useState('');
+    const [minSal, setMinSal] = useState('');
+    const [sop, setSop] = useState('');
+    const [url, setUrl] = useState('/api/applicant');
+    const [open, setOpen] = useState(false);
+    const [id, setId] = useState('');
+
+    const handleClose = () => {
+        setOpen(false);
+        setSop('');
+        setId('');
+    };
+
+    function getRecruiterName(params) {
+        return params.getValue('recruiter').name;
+    }
+
+    function getDeadline(params) {
+        var localDate = new Date(params.getValue('deadline'));
+        return localDate.toDateString();
+    }
+
+    function getDuration(params) {
+        const dur = params.getValue('duration');
+        if (dur) return `${dur} Months`;
+        else return 'Indefinite';
+    }
+
+    const applyJob = async () => {
+        setOpen(false);
+        console.log(id, sop);
+        try {
+            const response = await api.post(`/api/jobs/${id}`, { body: { sop } });
+            const result = response.data.data.data;
+            const jobID = result.job;
+            let jobz = [...jobs];
+            jobz.forEach(job => {
+                if (job.id === jobID) {
+                    job.applied = 'Applied';
+                }
+            });
+            setJobs(jobz);
+            dispatch(signnoerror());
+        } catch (err) {
+            const message = err.response.data.errors[0].msg;
+            dispatch(signerror({ message }));
+            console.error(err);
+        }
+    };
+
+    function renderSop(id) {
+        setOpen(true);
+        setSop('');
+        setId(id);
+    }
+
+    function applyButton(params) {
+        let applied = params.getValue('applied');
+        const full = params.getValue('full');
+        if (applied === 'Apply' && !full) {
+            return (
+                <strong>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={() => renderSop(params.getValue('id'))}
+                        style={{ marginLeft: 16 }}
+                    >
+                        Apply
+                    </Button>
+                </strong>
+            );
+        }
+        return (
+            <strong>
+                <Button
+                    variant="contained"
+                    size="small"
+                    color="primary"
+                    disabled
+                    style={{ marginLeft: 16 }}
+                >
+                    {applied === 'Applied' ? 'Applied' : 'Full'}
+                </Button>
+            </strong>
+        );
+    }
+
+    const columns = [
+        {
+            field: 'title',
+            headerName: 'Title',
+            width: 150,
+            sortable: false
+        },
+        {
+            field: 'type',
+            headerName: 'Type',
+            width: 150,
+            sortable: false
+        },
+        {
+            field: 'recuiter',
+            headerName: 'Recruiter',
+            width: 150,
+            valueGetter: getRecruiterName,
+            sortable: false
+        },
+        {
+            field: 'salary',
+            headerName: 'Salary',
+            sortable: false
+        },
+        {
+            field: 'duration',
+            headerName: 'Duration',
+            width: 150,
+            valueFormatter: getDuration,
+            sortable: false
+        },
+        {
+            field: 'deadline',
+            headerName: 'Deadline',
+            width: 150,
+            valueFormatter: getDeadline,
+            sortable: false
+        },
+        {
+            field: 'avgRating',
+            headerName: 'Rating',
+            sortable: false
+        },
+        {
+            field: 'apply',
+            headerName: 'Apply',
+            renderCell: applyButton,
+            width: 150,
+            sortable: false
+        }
+    ];
 
     const getAllJobs = async () => {
-        const res = await axios.get(`/api/applicant`);
-        console.log(res);
-        let result = res.data.data.data;
-        let maxi = -1;
-        result.forEach(job => {
-            job.id = job._id;
-            maxi = job.salary > maxi ? job.salary : maxi;
-        });
-        setJobs(result);
-        setMaxi(maxi);
+        try {
+            const res = await axios.get(url);
+            let result = res.data.data.data;
+            result.forEach(job => {
+                job.id = job._id;
+            });
+            setJobs(result);
+            dispatch(signnoerror());
+        } catch (err) {
+            const message = err.response.data.errors[0].msg;
+            dispatch(signerror({ message }));
+            console.error(err);
+        }
     };
     const history = useHistory();
 
     useEffect(() => {
         if (!loggedIn) history.push('/login');
         else getAllJobs();
-    }, [loggedIn]);
+    }, [loggedIn, url]);
+
+    const filterJobs = e => {
+        setUrl(
+            `/api/applicant?jobType=${filter.jobType}&salary=${filter.salary}&duration=${filter.duration}`
+        );
+        setSort({
+            sortDuration: '',
+            sortRating: '',
+            sortSalary: ''
+        });
+    };
+
+    const sortJObs = e => {
+        let jobsss = [...jobs];
+        jobsss.sort((job1, job2) => {
+            if (sorts.sortDuration) {
+                if (job1.duration < job2.duration)
+                    return sorts.sortDuration === 'Asc' ? -1 : 1;
+                if (job1.duration > job2.duration)
+                    return sorts.sortDuration === 'Asc' ? 1 : -1;
+            }
+            if (sorts.sortSalary) {
+                if (job1.salary < job2.salary) return sorts.sortSalary === 'Asc' ? -1 : 1;
+                if (job1.salary > job2.salary) return sorts.sortSalary === 'Asc' ? 1 : -1;
+            }
+            if (sorts.sortRating) {
+                if (job1.avgRating < job2.avgRating)
+                    return sorts.sortRating === 'Asc' ? -1 : 1;
+                if (job1.avgRating > job2.avgRating)
+                    return sorts.sortRating === 'Asc' ? 1 : -1;
+            }
+        });
+        setJobs(jobsss);
+    };
 
     const onChange = e => {
         setFilter({
@@ -170,23 +341,71 @@ const Dashboard = () => {
         });
     };
 
-    const salaryChange = (e, newValue) => {
-        console.log(newValue);
-        setValue(newValue);
-        const minmaxsal = newValue.join('-');
+    const sortsChange = e => {
+        setSort({
+            ...sorts,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const sopChange = e => {
+        setSop(e.target.value);
+    };
+
+    const minSalaryChange = e => {
+        setMinSal(e.target.value);
+        const minmaxsal = [e.target.value, maxSal].join('-');
         setFilter({
             ...filter,
             salary: minmaxsal
         });
     };
 
-    console.log(filter);
+    const maxSalaryChange = (e, newValue) => {
+        setMaxSal(e.target.value);
+        const minmaxsal = [minSal, e.target.value].join('-');
+        setFilter({
+            ...filter,
+            salary: minmaxsal
+        });
+    };
+
     if (!jobs) {
         return <h1>loading</h1>;
     }
 
     return (
         <>
+            {error && <MyAlert />}
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="form-dialog-title"
+                fullWidth
+            >
+                <DialogTitle id="form-dialog-title">Enter SOP</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        id="outlined-textarea"
+                        label="Sop"
+                        placeholder="Placeholder"
+                        multiline
+                        variant="outlined"
+                        fullWidth
+                        name="sop"
+                        value={sop}
+                        onChange={sopChange}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={applyJob} color="primary">
+                        Apply
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <div style={{ height: 400, width: '100%' }}>
                 <DataGrid
                     rows={jobs ? jobs : []}
@@ -209,21 +428,26 @@ const Dashboard = () => {
                             name="jobType"
                             style={{ width: '100%' }}
                         >
+                            <MenuItem value={''}>Remove</MenuItem>
                             <MenuItem value={'Full-Time'}>Full Time</MenuItem>
                             <MenuItem value={'Part-Time'}>Part Time</MenuItem>
                             <MenuItem value={'Work-From-Home'}>Work From Home</MenuItem>
                         </Select>
                     </Grid>
-                    <Grid item xs={3}>
-                        <Typography id="range-slider" gutterBottom>
-                            Salary
-                        </Typography>
-                        <Slider
-                            value={value}
-                            onChange={salaryChange}
-                            valueLabelDisplay="auto"
-                            aria-labelledby="range-slider"
-                            max={maxi}
+                    <Grid item xs={1}>
+                        <TextField
+                            id="standard-basic"
+                            label="Min"
+                            value={minSal}
+                            onChange={minSalaryChange}
+                        />
+                    </Grid>
+                    <Grid item xs={1}>
+                        <TextField
+                            id="standard-basic"
+                            label="Max"
+                            value={maxSal}
+                            onChange={maxSalaryChange}
                         />
                     </Grid>
                     <Grid item xs={3}>
@@ -236,6 +460,7 @@ const Dashboard = () => {
                             name="duration"
                             style={{ width: '100%' }}
                         >
+                            <MenuItem value={''}>Remove</MenuItem>
                             <MenuItem value={'1'}>1</MenuItem>
                             <MenuItem value={'2'}>2</MenuItem>
                             <MenuItem value={'3'}>3</MenuItem>
@@ -246,18 +471,18 @@ const Dashboard = () => {
                         </Select>
                     </Grid>
                     <Grid item xs={3}>
-                        <Button>Filter</Button>
+                        <Button onClick={filterJobs}>Filter</Button>
                     </Grid>
                 </Grid>
                 <Grid container spacing={3}>
                     <Grid item xs={3}>
-                        <InputLabel id="duration">Duration</InputLabel>
+                        <InputLabel id="sortDuration">Duration</InputLabel>
                         <Select
-                            labelId="duration"
-                            id="duration"
-                            value={filter.duration}
-                            onChange={onChange}
-                            name="duration"
+                            labelId="sortDuration"
+                            id="sortDuration"
+                            value={sorts.sortDuration}
+                            onChange={sortsChange}
+                            name="sortDuration"
                             style={{ width: '100%' }}
                         >
                             <MenuItem value={''}>Unsort</MenuItem>
@@ -266,13 +491,13 @@ const Dashboard = () => {
                         </Select>
                     </Grid>
                     <Grid item xs={3}>
-                        <InputLabel id="duration">Rating</InputLabel>
+                        <InputLabel id="sortSalary">Salary</InputLabel>
                         <Select
-                            labelId="duration"
-                            id="duration"
-                            value={filter.duration}
-                            onChange={onChange}
-                            name="duration"
+                            labelId="sortSalary"
+                            id="sortSalary"
+                            value={sorts.sortSalary}
+                            onChange={sortsChange}
+                            name="sortSalary"
                             style={{ width: '100%' }}
                         >
                             <MenuItem value={''}>Unsort</MenuItem>
@@ -281,13 +506,13 @@ const Dashboard = () => {
                         </Select>
                     </Grid>
                     <Grid item xs={3}>
-                        <InputLabel id="duration">Salary</InputLabel>
+                        <InputLabel id="sortRating">Rating</InputLabel>
                         <Select
-                            labelId="duration"
-                            id="duration"
-                            value={filter.duration}
-                            onChange={onChange}
-                            name="duration"
+                            labelId="sortRating"
+                            id="sortRating"
+                            value={sorts.sortRating}
+                            onChange={sortsChange}
+                            name="sortRating"
                             style={{ width: '100%' }}
                         >
                             <MenuItem value={''}>Unsort</MenuItem>
@@ -296,7 +521,7 @@ const Dashboard = () => {
                         </Select>
                     </Grid>
                     <Grid item xs={3}>
-                        <Button>Sort</Button>
+                        <Button onClick={sortJObs}>Sort</Button>
                     </Grid>
                 </Grid>
             </div>
