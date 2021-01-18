@@ -6,6 +6,8 @@ import Login from '../components/Login';
 import Register from '../components/Register';
 import Dashboard from '../components/Dashboard';
 import MyApplication from '../components/MyApplication';
+import MyJobs from '../components/MyJobs';
+import Employees from '../components/Employees';
 
 import './App.css';
 
@@ -33,8 +35,8 @@ function App() {
                         <Route exact path="/login" exact component={Login} />
                         <Route exact path="/register" exact component={Register} />
                         <Route exact path="/profile" exact component={Profile} />
-                        {/* <Route exact path="/login" exact component={Login} />
-                        <Route exact path="/navbar" exact component={Navbar} /> */}
+                        <Route exact path="/myjobs" exact component={MyJobs} />
+                        <Route exact path="/myemp" exact component={Employees} />
                     </Switch>
                 </Navbar>
             </Router>

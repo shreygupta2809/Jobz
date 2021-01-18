@@ -18,112 +18,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-// function getRecruiterName(params) {
-//     return params.getValue('recruiter').name;
-// }
-
-// function getDeadline(params) {
-//     var localDate = new Date(params.getValue('deadline'));
-//     return localDate.toDateString();
-// }
-
-// function getDuration(params) {
-//     const dur = params.getValue('duration');
-//     if (dur) return `${dur} Months`;
-//     else return 'Indefinite';
-// }
-
-// function applyButton(params) {
-//     let applied = params.getValue('applied');
-//     const full = params.getValue('full');
-//     if (applied === 'Apply' && !full) {
-//         return (
-//             <strong>
-//                 <Button
-//                     variant="contained"
-//                     color="primary"
-//                     size="small"
-//                     onClick={() => console.log(params.getValue('id'))}
-//                     style={{ marginLeft: 16 }}
-//                 >
-//                     Apply
-//                 </Button>
-//             </strong>
-//         );
-//     }
-//     return (
-//         <strong>
-//             <Button
-//                 variant="contained"
-//                 size="small"
-//                 color="primary"
-//                 disabled
-//                 style={{ marginLeft: 16 }}
-//             >
-//                 {applied === 'Applied' ? 'Applied' : 'Full'}
-//             </Button>
-//         </strong>
-//     );
-// }
-
-// const columns = [
-//     {
-//         field: 'title',
-//         headerName: 'Title',
-//         width: 150,
-//         sortable: false
-//     },
-//     {
-//         field: 'type',
-//         headerName: 'Type',
-//         width: 150,
-//         sortable: false
-//     },
-//     {
-//         field: 'recuiter',
-//         headerName: 'Recruiter',
-//         width: 150,
-//         valueGetter: getRecruiterName,
-//         sortable: false
-//     },
-//     {
-//         field: 'salary',
-//         headerName: 'Salary',
-//         sortable: false
-//     },
-//     {
-//         field: 'duration',
-//         headerName: 'Duration',
-//         width: 150,
-//         valueFormatter: getDuration,
-//         sortable: false
-//     },
-//     {
-//         field: 'deadline',
-//         headerName: 'Deadline',
-//         width: 150,
-//         valueFormatter: getDeadline,
-//         sortable: false
-//     },
-//     {
-//         field: 'avgRating',
-//         headerName: 'Rating',
-//         sortable: false
-//     },
-//     {
-//         field: 'apply',
-//         headerName: 'Apply',
-//         renderCell: applyButton,
-//         width: 150,
-//         sortable: false
-//     }
-// ];
-
 const Dashboard = () => {
     const dispatch = useDispatch();
     const loggedIn = useSelector(state => state.login.isAuthenticated);
     const error = useSelector(state => state.login.error);
     const [jobs, setJobs] = useState(undefined);
+    const [finaljobs, setFinalJobs] = useState(undefined);
 
     const [filter, setFilter] = useState({
         jobType: '',
@@ -136,6 +36,8 @@ const Dashboard = () => {
         sortSalary: ''
     });
 
+    const [change, setChange] = useState(false);
+    const [search, setSearch] = useState('');
     const [maxSal, setMaxSal] = useState('');
     const [minSal, setMinSal] = useState('');
     const [sop, setSop] = useState('');
@@ -147,6 +49,7 @@ const Dashboard = () => {
         setOpen(false);
         setSop('');
         setId('');
+        dispatch(signnoerror());
     };
 
     function getRecruiterName(params) {
@@ -165,20 +68,20 @@ const Dashboard = () => {
     }
 
     const applyJob = async () => {
-        setOpen(false);
-        console.log(id, sop);
         try {
             const response = await api.post(`/api/jobs/${id}`, { body: { sop } });
-            const result = response.data.data.data;
-            const jobID = result.job;
-            let jobz = [...jobs];
-            jobz.forEach(job => {
-                if (job.id === jobID) {
-                    job.applied = 'Applied';
-                }
-            });
-            setJobs(jobz);
+            // const result = response.data.data.data;
+            // const jobID = result.job;
+            // let jobz = [...jobs];
+            // jobz.forEach(job => {
+            //     if (job.id === jobID) {
+            //         job.applied = 'Applied';
+            //     }
+            // });
+            // setJobs(jobz);
             dispatch(signnoerror());
+            setOpen(false);
+            setChange(!change);
         } catch (err) {
             const message = err.response.data.errors[0].msg;
             dispatch(signerror({ message }));
@@ -288,6 +191,8 @@ const Dashboard = () => {
                 job.id = job._id;
             });
             setJobs(result);
+            setFinalJobs(result);
+            setSearch('');
             dispatch(signnoerror());
         } catch (err) {
             const message = err.response.data.errors[0].msg;
@@ -300,7 +205,21 @@ const Dashboard = () => {
     useEffect(() => {
         if (!loggedIn) history.push('/login');
         else getAllJobs();
-    }, [loggedIn, url]);
+    }, [loggedIn, url, change]);
+
+    useEffect(() => {
+        console.log(search, finaljobs);
+        if (finaljobs) {
+            // let tempJobs = finaljobs.map(el => {
+            //     if (el.title.replace(/\s+/g, '').includes(search)) return el;
+            // });
+            const tempJobs = finaljobs.filter(el =>
+                el.title.replace(/\s+/g, '').includes(search)
+            );
+            console.log(tempJobs);
+            setJobs(tempJobs);
+        }
+    }, [search]);
 
     const filterJobs = e => {
         setUrl(
@@ -354,6 +273,10 @@ const Dashboard = () => {
         setSop(e.target.value);
     };
 
+    const searchChange = e => {
+        setSearch(e.target.value);
+    };
+
     const minSalaryChange = e => {
         setMinSal(e.target.value);
         const minmaxsal = [e.target.value, maxSal].join('-');
@@ -372,7 +295,7 @@ const Dashboard = () => {
         });
     };
 
-    if (!jobs) {
+    if (!finaljobs) {
         return <h1>loading</h1>;
     }
 
@@ -386,6 +309,7 @@ const Dashboard = () => {
                 fullWidth
             >
                 <DialogTitle id="form-dialog-title">Enter SOP</DialogTitle>
+                {error && <MyAlert />}
                 <DialogContent>
                     <TextField
                         id="outlined-textarea"
@@ -408,6 +332,21 @@ const Dashboard = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Grid container spacing={3} style={{ marginBottom: '15px' }}>
+                <Grid item xs={9}>
+                    <TextField
+                        id="outlined-search"
+                        label="Search field"
+                        type="search"
+                        variant="outlined"
+                        fullWidth
+                        value={search}
+                        onChange={searchChange}
+                    />
+                </Grid>
+            </Grid>
+
             <div style={{ height: 400, width: '100%' }}>
                 <DataGrid
                     rows={jobs ? jobs : []}

@@ -67,7 +67,8 @@ const Login = () => {
     const role = useSelector(state => state.login.role);
     const error = useSelector(state => state.login.error);
 
-    if (loggedIn) return <Redirect to="/dashboard" />;
+    if (loggedIn && role === 'Applicant') return <Redirect to="/dashboard" />;
+    if (loggedIn && role === 'Recruiter') return <Redirect to="/myjobs" />;
 
     const onChange = e => {
         setFormData({

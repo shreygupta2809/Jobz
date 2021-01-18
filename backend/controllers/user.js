@@ -58,8 +58,12 @@ exports.recEmp = async (req, res) => {
         el.applicant.avgRating =
           el.applicant.ratings.reduce((total, next) => total + next.value, 0) /
           el.applicant.ratings.length;
+        const recIDs = el.applicant.ratings.map((e) => e.recId.toString());
+        if (recIDs.includes(req.user.id)) el.hasRated = 1;
+        else el.hasRated = 0;
       } else {
         el.applicant.avgRating = 0;
+        el.hasRated = 0;
       }
     });
 

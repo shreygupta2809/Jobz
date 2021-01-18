@@ -3,9 +3,22 @@ const Recruiter = require("../models/recruiter");
 const Application = require("../models/application");
 const job = require("../models/job");
 
+function isValidDate(dateString) {
+  var regEx = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateString.match(regEx)) return false;
+  var d = new Date(dateString);
+  var dNum = d.getTime();
+  if (!dNum && dNum !== 0) return false;
+  return d.toISOString().slice(0, 10) === dateString;
+}
+
+const unique = (value, index, self) => {
+  return self.indexOf(value) === index;
+};
+
 exports.createJob = async (req, res) => {
   try {
-    const {
+    let {
       title,
       salary,
       deadline,
@@ -42,6 +55,7 @@ exports.createJob = async (req, res) => {
       });
     }
     durations = [0, 1, 2, 3, 4, 5, 6];
+    duration = duration * 1;
     if (!durations.includes(duration)) {
       return res.status(400).json({
         errors: [{ msg: "Please enter valid duration" }],
@@ -55,12 +69,23 @@ exports.createJob = async (req, res) => {
       });
     }
 
+    if (!isValidDate(deadline)) {
+      return res.status(400).json({
+        errors: [{ msg: "Enter Deadline in YYYY-MM-DD Format" }],
+      });
+    }
+
     var today = new Date();
     var tempDate = new Date(deadline);
     if (tempDate <= today) {
       return res.status(400).json({
         errors: [{ msg: "Deadline should be in the future" }],
       });
+    }
+
+    if (skill) {
+      skill = skill.filter(unique);
+      skill = skill.filter((item) => item);
     }
 
     const recruiterId = req.user.id;
@@ -131,7 +156,7 @@ exports.updateJob = async (req, res) => {
       const { deadline, maxPos, maxApp } = req.body;
 
       if (maxPos) {
-        if (maxPos > 0 && job.maxPos < maxPos) {
+        if (maxPos > 0 && job.maxPos <= maxPos) {
           job.maxPos = maxPos;
         } else {
           return res.status(400).json({
@@ -145,7 +170,7 @@ exports.updateJob = async (req, res) => {
       }
 
       if (maxApp) {
-        if (maxApp > 0 && job.maxApp < maxApp) {
+        if (maxApp > 0 && job.maxApp <= maxApp) {
           job.maxApp = maxApp;
         } else {
           return res.status(400).json({
@@ -159,6 +184,12 @@ exports.updateJob = async (req, res) => {
       }
 
       if (deadline) {
+        if (!isValidDate(deadline)) {
+          return res.status(400).json({
+            errors: [{ msg: "Enter Deadline in YYYY-MM-DD Format" }],
+          });
+        }
+
         var today = new Date();
         var tempDate = new Date(deadline);
         if (tempDate <= today) {
@@ -209,8 +240,6 @@ exports.getJobs = async (req, res) => {
     }
 
     conditions.deadline = { $gt: Date.now() };
-
-    // const sortString = req.query.sort.split(",").join(" ");
 
     const jobs = await Job.find(conditions)
       .select("title recruiter ratings salary duration deadline maxPos type")
@@ -329,6 +358,7 @@ exports.getJobRec = async (req, res) => {
 
     for (var i = 0; i < jobIds.length; i++) {
       let count = 0;
+      let count1 = 0;
       for (var j = 0; j < applications.length; j++) {
         const el = applications[j];
         if (
@@ -336,9 +366,15 @@ exports.getJobRec = async (req, res) => {
           el.job.toString() === jobIds[i].toString()
         )
           count++;
+        if (
+          el.status === "Accepted" &&
+          el.job.toString() === jobIds[i].toString()
+        )
+          count1++;
       }
 
       jobs[i].numApplicants = count;
+      jobs[i].posLeft = jobs[i].maxPos - count1;
     }
     res.status(200).json({
       status: "success",
