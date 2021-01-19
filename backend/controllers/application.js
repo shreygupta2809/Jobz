@@ -1,5 +1,7 @@
 const Application = require("../models/application");
+const User = require("../models/user");
 const Job = require("../models/job");
+const emailSend = require("../utils/email");
 
 function countWords(str) {
   return str.replace(/\s+/g, " ").trim().split(" ").length;
@@ -151,6 +153,15 @@ exports.changeStatus = async (req, res) => {
 
       application.status = status;
       await application.save();
+
+      const applicant = await User.findById(applicantId);
+      const email = applicant.email;
+
+      emailSend(
+        email,
+        "Accepted For Job",
+        `You have been accepted for ${job.title} job!`
+      ).catch((err) => console.error(err));
 
       await Application.updateMany(
         { applicant: applicantId, _id: { $ne: req.params.id } },
