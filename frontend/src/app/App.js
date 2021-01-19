@@ -8,6 +8,7 @@ import Dashboard from '../components/Dashboard';
 import MyApplication from '../components/MyApplication';
 import MyJobs from '../components/MyJobs';
 import Employees from '../components/Employees';
+import Application from '../components/Application';
 
 import './App.css';
 
@@ -37,6 +38,7 @@ function App() {
                         <Route exact path="/profile" exact component={Profile} />
                         <Route exact path="/myjobs" exact component={MyJobs} />
                         <Route exact path="/myemp" exact component={Employees} />
+                        <Route exact path="/app" exact component={Application} />
                     </Switch>
                 </Navbar>
             </Router>

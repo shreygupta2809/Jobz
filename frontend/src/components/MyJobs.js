@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signerror, signnoerror } from './LoginSlice';
 import api from '../utils/apiCalls';
 import MyAlert from './MyAlert';
+import Application from './Application';
 
 import Button from '@material-ui/core/Button';
 import { DataGrid } from '@material-ui/data-grid';
@@ -24,7 +25,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-const MyJobs = () => {
+const MyJobs = props => {
     const dispatch = useDispatch();
     const loggedIn = useSelector(state => state.login.isAuthenticated);
     const error = useSelector(state => state.login.error);
@@ -184,6 +185,27 @@ const MyJobs = () => {
         );
     }
 
+    function viewButton(params) {
+        return (
+            <strong>
+                <Button
+                    variant="contained"
+                    color="default"
+                    size="small"
+                    onClick={() =>
+                        props.history.push({
+                            pathname: '/app',
+                            state: { jobId: params.getValue('id') }
+                        })
+                    }
+                    style={{ marginLeft: 16 }}
+                >
+                    View
+                </Button>
+            </strong>
+        );
+    }
+
     const columns = [
         {
             field: 'title',
@@ -227,6 +249,13 @@ const MyJobs = () => {
             field: 'delete',
             headerName: 'Delete',
             renderCell: deleteButton,
+            width: 150,
+            sortable: false
+        },
+        {
+            field: 'view',
+            headerName: 'View Applications',
+            renderCell: viewButton,
             width: 150,
             sortable: false
         }
