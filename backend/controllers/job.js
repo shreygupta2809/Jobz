@@ -42,7 +42,7 @@ exports.createJob = async (req, res) => {
       });
     }
 
-    if (salary < 0) {
+    if (salary <= 0) {
       return res.status(400).json({
         errors: [{ msg: "Please enter valid salary" }],
       });
@@ -355,7 +355,7 @@ exports.getJobRec = async (req, res) => {
       .lean();
     const jobIds = jobs.map((job) => job._id);
     const applications = await Application.find({ job: { $in: jobIds } });
-
+    let newJobs = [];
     for (var i = 0; i < jobIds.length; i++) {
       let count = 0;
       let count1 = 0;
@@ -375,11 +375,12 @@ exports.getJobRec = async (req, res) => {
 
       jobs[i].numApplicants = count;
       jobs[i].posLeft = jobs[i].maxPos - count1;
+      if (jobs[i].posLeft) newJobs.push(jobs[i]);
     }
     res.status(200).json({
       status: "success",
       data: {
-        data: jobs,
+        data: newJobs,
       },
     });
   } catch (err) {
