@@ -58,7 +58,7 @@ const Dashboard = () => {
 
     function getDeadline(params) {
         var localDate = new Date(params.getValue('deadline'));
-        return localDate.toDateString();
+        return localDate.toLocaleString();
     }
 
     function getDuration(params) {
@@ -138,7 +138,7 @@ const Dashboard = () => {
         {
             field: 'type',
             headerName: 'Type',
-            width: 150,
+            width: 170,
             sortable: false
         },
         {
@@ -164,7 +164,7 @@ const Dashboard = () => {
         {
             field: 'deadline',
             headerName: 'Deadline',
-            width: 150,
+            width: 250,
             valueFormatter: getDeadline,
             sortable: false
         },
@@ -208,7 +208,7 @@ const Dashboard = () => {
     }, [loggedIn, url, change]);
 
     useEffect(() => {
-        console.log(search, finaljobs);
+        // console.log(search, finaljobs);
         if (finaljobs) {
             // let tempJobs = finaljobs.map(el => {
             //     if (el.title.replace(/\s+/g, '').includes(search)) return el;
@@ -216,7 +216,7 @@ const Dashboard = () => {
             const tempJobs = finaljobs.filter(el =>
                 el.title.replace(/\s+/g, '').includes(search)
             );
-            console.log(tempJobs);
+            // console.log(tempJobs);
             setJobs(tempJobs);
         }
     }, [search]);

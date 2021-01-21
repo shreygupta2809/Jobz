@@ -3,14 +3,14 @@ const Recruiter = require("../models/recruiter");
 const Application = require("../models/application");
 const job = require("../models/job");
 
-function isValidDate(dateString) {
-  var regEx = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateString.match(regEx)) return false;
-  var d = new Date(dateString);
-  var dNum = d.getTime();
-  if (!dNum && dNum !== 0) return false;
-  return d.toISOString().slice(0, 10) === dateString;
-}
+// function isValidDate(dateString) {
+//   var regEx = /^\d{4}-\d{2}-\d{2}$/;
+//   if (!dateString.match(regEx)) return false;
+//   var d = new Date(dateString);
+//   var dNum = d.getTime();
+//   if (!dNum && dNum !== 0) return false;
+//   return d.toISOString().slice(0, 10) === dateString;
+// }
 
 const unique = (value, index, self) => {
   return self.indexOf(value) === index;
@@ -69,11 +69,11 @@ exports.createJob = async (req, res) => {
       });
     }
 
-    if (!isValidDate(deadline)) {
-      return res.status(400).json({
-        errors: [{ msg: "Enter Deadline in YYYY-MM-DD Format" }],
-      });
-    }
+    // if (!isValidDate(deadline)) {
+    //   return res.status(400).json({
+    //     errors: [{ msg: "Enter Deadline in YYYY-MM-DD Format" }],
+    //   });
+    // }
 
     var today = new Date();
     var tempDate = new Date(deadline);
@@ -184,11 +184,11 @@ exports.updateJob = async (req, res) => {
       }
 
       if (deadline) {
-        if (!isValidDate(deadline)) {
-          return res.status(400).json({
-            errors: [{ msg: "Enter Deadline in YYYY-MM-DD Format" }],
-          });
-        }
+        // if (!isValidDate(deadline)) {
+        //   return res.status(400).json({
+        //     errors: [{ msg: "Enter Deadline in YYYY-MM-DD Format" }],
+        //   });
+        // }
 
         var today = new Date();
         var tempDate = new Date(deadline);

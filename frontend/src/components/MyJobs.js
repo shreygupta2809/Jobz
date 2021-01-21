@@ -375,12 +375,23 @@ const MyJobs = props => {
                             />
                         </Grid>
                         <Grid item xs={5}>
-                            <TextField
+                            {/* <TextField
                                 id="standard-basic"
                                 label="Deadline YYYY-MM-DD"
                                 name="deadline"
                                 value={addForm.deadline}
                                 onChange={addFormChange}
+                            /> */}
+                            <TextField
+                                id="datetime-local"
+                                label="Deadline"
+                                type="datetime-local"
+                                name="deadline"
+                                value={addForm.deadline}
+                                onChange={addFormChange}
+                                InputLabelProps={{
+                                    shrink: true
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -512,12 +523,23 @@ const MyJobs = props => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            {/* <TextField
                                 id="standard-basic"
                                 label="Deadline YYYY-MM-DD"
                                 name="deadline"
                                 value={editForm.deadline}
                                 onChange={editFormChange}
+                            /> */}
+                            <TextField
+                                id="datetime-local"
+                                label="Deadline"
+                                type="datetime-local"
+                                name="deadline"
+                                value={editForm.deadline}
+                                onChange={editFormChange}
+                                InputLabelProps={{
+                                    shrink: true
+                                }}
                             />
                         </Grid>
                     </Grid>
