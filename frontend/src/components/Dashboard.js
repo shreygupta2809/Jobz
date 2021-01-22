@@ -213,8 +213,10 @@ const Dashboard = () => {
             // let tempJobs = finaljobs.map(el => {
             //     if (el.title.replace(/\s+/g, '').includes(search)) return el;
             // });
-            const tempJobs = finaljobs.filter(el =>
-                el.title.replace(/\s+/g, '').includes(search)
+            const tempJobs = finaljobs.filter(
+                el =>
+                    el.title.replace(/\s+/g, '').includes(search) ||
+                    el.title.trim().includes(search)
             );
             // console.log(tempJobs);
             setJobs(tempJobs);
