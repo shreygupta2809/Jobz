@@ -97,9 +97,9 @@ const Profile = () => {
     const getMe = async () => {
         setLoading(true);
         const res = await axios.get(`/api/users/`);
-        console.log(res);
+        // console.log(res);
         const result = res.data.data.data;
-        console.log(result);
+        // console.log(result);
         setFormData(result);
         setEdu(result.education);
         setSkill(result.skill);
@@ -188,7 +188,7 @@ const Profile = () => {
 
     const onSubmit = e => {
         e.preventDefault();
-        console.log(formData);
+        // console.log(formData);
         update(formData);
     };
     if (loading) {

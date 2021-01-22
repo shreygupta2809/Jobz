@@ -60,7 +60,7 @@ const MyApplication = () => {
 
     const rateJob = async () => {
         setOpen(false);
-        console.log(id, rate);
+        // console.log(id, rate);
         try {
             const response = await api.post(`/api/ratings/job/${id}`, {
                 body: { value: rate }
@@ -195,7 +195,7 @@ const MyApplication = () => {
 
     const rateChange = e => {
         setRate(e.target.value);
-        console.log(e.target.value);
+        // console.log(e.target.value);
     };
 
     const history = useHistory();

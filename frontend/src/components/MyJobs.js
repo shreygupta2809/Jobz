@@ -99,7 +99,7 @@ const MyJobs = props => {
     };
 
     const addJob = async () => {
-        console.log(addForm);
+        // console.log(addForm);
         try {
             const response = await api.post(`/api/jobs/`, {
                 body: addForm
