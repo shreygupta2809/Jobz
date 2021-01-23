@@ -117,21 +117,21 @@ const Employees = () => {
         {
             field: 'name',
             headerName: 'Name',
-            width: 150,
+            width: 250,
             valueGetter: getName,
             sortable: false
         },
         {
             field: 'date',
             headerName: 'Date of Joining',
-            width: 150,
+            width: 180,
             valueFormatter: getDate,
             sortable: false
         },
         {
             field: 'title',
             headerName: 'Title',
-            width: 150,
+            width: 250,
             valueGetter: getTitle,
             sortable: false
         },

@@ -134,7 +134,7 @@ exports.updateUser = async (req, res) => {
         contact = contact * 1;
         if (
           typeof contact !== "number" ||
-          contact < 111111111 ||
+          contact < 1111111111 ||
           contact > 9999999999
         ) {
           return res

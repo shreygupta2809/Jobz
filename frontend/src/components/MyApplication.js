@@ -130,7 +130,7 @@ const MyApplication = () => {
         {
             field: 'title',
             headerName: 'Title',
-            width: 150,
+            width: 250,
             valueGetter: getTitle,
             sortable: false
         },
@@ -151,7 +151,7 @@ const MyApplication = () => {
         {
             field: 'recuiter',
             headerName: 'Recruiter',
-            width: 150,
+            width: 250,
             valueGetter: getRecruiterName,
             sortable: false
         },

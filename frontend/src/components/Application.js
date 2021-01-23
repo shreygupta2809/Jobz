@@ -144,14 +144,14 @@ const Application = props => {
         {
             field: 'name',
             headerName: 'Name',
-            width: 150,
+            width: 170,
             valueGetter: getName,
             sortable: false
         },
         {
             field: 'date',
             headerName: 'Date of Applying',
-            width: 150,
+            width: 170,
             valueFormatter: getDate,
             sortable: false
         },
@@ -164,7 +164,7 @@ const Application = props => {
         {
             field: 'sop',
             headerName: 'SOP',
-            width: 150,
+            width: 340,
             sortable: false
         },
         {
@@ -179,14 +179,14 @@ const Application = props => {
             headerName: 'Education',
             valueFormatter: getEducation,
             renderCell: getEducation,
-            width: 400,
+            width: 200,
             sortable: false
         },
         {
             field: 'skill',
             headerName: 'Skills',
             valueFormatter: getSkills,
-            width: 300,
+            width: 350,
             sortable: false
         },
         {

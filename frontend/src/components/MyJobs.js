@@ -210,13 +210,13 @@ const MyJobs = props => {
         {
             field: 'title',
             headerName: 'Title',
-            width: 150,
+            width: 250,
             sortable: false
         },
         {
             field: 'datePost',
             headerName: 'Date Posted',
-            width: 150,
+            width: 180,
             valueFormatter: getDate,
             sortable: false
         },

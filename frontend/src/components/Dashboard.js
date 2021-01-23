@@ -132,7 +132,7 @@ const Dashboard = () => {
         {
             field: 'title',
             headerName: 'Title',
-            width: 150,
+            width: 250,
             sortable: false
         },
         {
