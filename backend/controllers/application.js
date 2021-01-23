@@ -170,7 +170,11 @@ exports.changeStatus = async (req, res) => {
 
       if (appJobs.length + 1 == job.maxPos) {
         await Application.updateMany(
-          { job: jobId, _id: { $ne: req.params.id } },
+          {
+            job: jobId,
+            _id: { $ne: req.params.id },
+            status: { $ne: "Accepted" },
+          },
           { status: "Rejected" }
         );
       }
