@@ -54,7 +54,7 @@ const MyApplication = () => {
     function getDate(params) {
         const status = params.getValue('status');
         if (status !== 'Accepted') return 'NA';
-        var localDate = new Date(params.getValue('date'));
+        var localDate = new Date(params.getValue('dateAcc'));
         return localDate.toDateString();
     }
 
@@ -135,7 +135,7 @@ const MyApplication = () => {
             sortable: false
         },
         {
-            field: 'date',
+            field: 'dateAcc',
             headerName: 'Date of Joining',
             width: 150,
             valueFormatter: getDate,

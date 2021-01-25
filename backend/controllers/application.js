@@ -152,6 +152,7 @@ exports.changeStatus = async (req, res) => {
       const jobId = application.job;
 
       application.status = status;
+      application.dateAcc = Date.now();
       await application.save();
 
       const applicant = await User.findById(applicantId);
@@ -223,7 +224,7 @@ exports.myApplications = async (req, res) => {
         select: "title recruiter date salary ratings",
         populate: { path: "recruiter", select: "name" },
       })
-      .select("status date")
+      .select("status dateAcc")
       .lean();
 
     applications.forEach(function (el) {

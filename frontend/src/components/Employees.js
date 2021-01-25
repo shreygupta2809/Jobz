@@ -61,7 +61,7 @@ const Employees = () => {
     }
 
     function getDate(params) {
-        var localDate = new Date(params.getValue('date'));
+        var localDate = new Date(params.getValue('dateAcc'));
         return localDate.toDateString();
     }
 
@@ -122,7 +122,7 @@ const Employees = () => {
             sortable: false
         },
         {
-            field: 'date',
+            field: 'dateAcc',
             headerName: 'Date of Joining',
             width: 180,
             valueFormatter: getDate,

@@ -50,7 +50,7 @@ exports.recEmp = async (req, res) => {
           select: "type title",
         },
       ])
-      .select("date")
+      .select("dateAcc")
       .lean();
 
     employees.forEach(function (el) {

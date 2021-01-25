@@ -16,6 +16,9 @@ const ApplicationSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
+  dateAcc: {
+    type: Date,
+  },
   job: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Job",
