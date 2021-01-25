@@ -215,8 +215,8 @@ const Dashboard = () => {
             // });
             const tempJobs = finaljobs.filter(
                 el =>
-                    el.title.replace(/\s+/g, '').includes(search) ||
-                    el.title.trim().includes(search)
+                    el.title.replace(/\s+/g, '').toLowerCase().includes(search) ||
+                    el.title.trim().toLowerCase().includes(search)
             );
             // console.log(tempJobs);
             setJobs(tempJobs);
